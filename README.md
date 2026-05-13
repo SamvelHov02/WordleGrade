@@ -1,0 +1,3 @@
+# WordleGrade
+
+WordleGrade is project that will be used to grade the performence of a Wordle game. This will be done using information theory, mainly entropy. Inspired by the 3Blue1Brown video series of about the game, however instead of revealing the best words to the player this application is meant to be used retroactively as an automatic grader. This project isn't novel as there already exists several `wordle calculators`, so this project is mainly a passion project with educational purposes. One novel application that might be attempted is to incorparte the functionality in a discord bot to use it in a discord server and compare performence amongst server members.

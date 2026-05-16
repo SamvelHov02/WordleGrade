@@ -100,6 +100,37 @@ def remove_invalid_words(valid_words, grey_chars, yellow_chars, green_chars):
     
     return updated_valid_words
 
+
+def get_pattern(word, guess):
+    """Shows the pattern for guess word
+
+    Args:
+        word (str): Word of the day
+        guess (str): Guessed word
+    
+    Returns:
+        str : a string pattern e.g. GYBGB
+    """
+    pattern = ["" for _ in range(5)]
+    # Check for green and black cells
+    for i, char in enumerate(guess):
+        if char == word[i]: pattern[i]  = 'G'
+        elif char not in word : pattern[i] = 'B'
+        
+    # not_marked = list(filter(lambda x : x == "", pattern))
+    not_marked = [x for x, c in enumerate(pattern) if c == ""]
+    
+    # Some characters that appear in the word but not correct postion or more times in guess than in word
+    for i in not_marked:
+        char = guess[i]
+        indicies = [j for j, c in enumerate(word) if c == char]
+        left_char = [k for k in indicies if pattern[k] != 'G' or pattern[k] != 'Y']
+        if len(left_char) > 0:
+            pattern[i] = 'Y'
+        
+    return "".join(pattern)
+
+
 def information_gain(valid_words, guess):
     '''Calculates information gain from a word, i.e. the entropy difference
     

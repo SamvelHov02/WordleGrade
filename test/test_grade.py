@@ -9,12 +9,26 @@ def test_all_black():
     assert grade.get_pattern('crane', 'bults') == 'BBBBB'
 
 
-@pytest.mark.parametize("word, guess, expected", [
+@pytest.mark.parametrize("word, guess, expected", [
     ("could", "cooks", "GGBBB"),
     ("above", "books", "YYBBB"),
     ("llama", "alone", "YBBBY"),
     ("eerie", "geese", "YYBBY"),
     ("lulls", "lolls", "GBBGG"),
 ])
-def test_duplicate_letters():
-    assert grade.get_pattern('eerie', 'stern') == 'BBYYB'
+def test_duplicate_letters(word, guess, expected):
+    assert grade.get_pattern(word, guess) == expected
+    
+
+def test_no_information_gain():
+    words = {"aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee"}
+    assert grade.information_gain(words, "zzzzz") == pytest.approx(0.0)
+    
+
+def test_perfect_split_information_gain():
+    words = {"aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee"}
+    assert grade.information_gain(words, "abcde") == pytest.approx(2.0)
+    
+
+# def test_uneven_split_information_gain():
+#     pass

@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+from math import log2
 
 def read_valid_words():
     '''Reads the posible wordle words
@@ -141,12 +142,23 @@ def information_gain(valid_words, guess):
     Returns:
         float : Amount of information gain
     '''
+    size = len(valid_words)
     buckets = {} 
     
     # Assuming word is the final word which pattern would guess word create
     for word in valid_words:
-        pass 
-    
+        pattern = get_pattern(word, guess)
+        buckets[pattern] = buckets.get(pattern, 0) + 1
+        
+    # Calculate the information gain
+    entropy_before = log2(size) 
+    entropy_after = 0
+    for pattern, count in buckets.items():
+        prob = count / size
+        entropy_after += prob * log2(count)
+        
+    return entropy_before - entropy_after
+         
     
 def main():
     # Define the parser

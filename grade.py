@@ -48,14 +48,12 @@ def yellow_valid(yellow_chars, word):
     Returns:
         Boolean : A boolean whether or not the word is still possible
     """
-    valid = True
+    for char, count in yellow_chars.items():
+        char_in_word = len(list(filter(lambda x : x == char, word)))
+        if count > char_in_word:
+            return False 
 
-    for i in list(yellow_chars.keys()): 
-        for char in yellow_chars[i]:
-            if char not in word:
-                valid = False
-
-    return valid
+    return True 
 
 def grey_valid(grey_chars, word):
     """Checks if a word is invalidated by the grey cells
@@ -77,27 +75,42 @@ def grey_valid(grey_chars, word):
 
     return valid
 
-def remove_invalid_words(valid_words, grey_chars, yellow_chars, green_chars): 
+def remove_invalid_words(valid_words, word, guess): 
     '''Removes words that have been invalidated
     
     Args:
         valid_words (set) : previous words that were valid
-        grey_chars (set) : the accumalted grey characters
-        yellow_chars (dict) : Yellow characters per position
-        green_chars (list) : Contains correctly revealed characters
-    
+        word (str)  : the actual word of the game 
+        guess (str) : the word player has used  
+         
     Returns:
         set : remaining valid words after word is guessed
     '''
     updated_valid_words = valid_words.copy()
+
+    pattern = get_pattern(word, guess)
+    green_chars = ["" for _ in range(5)]
+    # Yellow chars a mapping between character in the word and number of occurence
+    yellow_chars = {c : 0 for c in list(word)}
+    black_chars = set()
     
-    for word in valid_words:
-        valid_green = lambda : green_valid(green_chars, word)
-        valid_yellow = lambda : yellow_valid(yellow_chars, word)
-        valid_grey = lambda : grey_valid(grey_chars, word)
+    for i, p in enumerate(pattern):
+        char = guess[i]
+        if p == "G":
+            green_chars[i] = char 
+        elif p == "Y":
+            yellow_chars[char] += 1
+        # The guess word might have characters that are duplicates
+        elif guess[i] not in yellow_chars:
+            black_chars.add(char)
+    
+    for candidate in valid_words:
+        valid_g = lambda : green_valid(green_chars, candidate)
+        valid_y = lambda : yellow_valid(yellow_chars, candidate)
+        valid_b = lambda : grey_valid(black_chars, candidate)
         
-        if not valid_green() and not  valid_yellow() and not valid_grey():
-            updated_valid_words.remove(word)     
+        if not valid_g() or not valid_y() or not valid_b():
+            updated_valid_words.remove(candidate)
     
     return updated_valid_words
 
@@ -118,7 +131,6 @@ def get_pattern(word, guess):
         if char == word[i]: pattern[i]  = 'G'
         elif char not in word : pattern[i] = 'B'
         
-    # not_marked = list(filter(lambda x : x == "", pattern))
     guess_not_marked = [x for x, c in enumerate(pattern) if c == ""]
     unique_char_left_guess = {guess[j] : [] for j in guess_not_marked} 
     unique_char_left_word = {guess[j] : [] for j in guess_not_marked} 
@@ -181,28 +193,9 @@ def main():
     game_calc = games_df.iloc[args.id]
     word, guesses = game_calc["guesses"]
     guesses = guesses.split('-')
+    
+    # TODO : Complete the main loop logic
     valid_words = read_valid_words()
-    
-    grey_chars = set()
-    yellow_chars = {i:[] for i in range(5)}
-    green_chars = ['' for _ in range(5)]
-    
-    for i, guess in enumerate(guesses):
-        for j, char in enumerate(list(guess)):
-            if char == word[j]:
-                green_chars[j] = char
-            elif char in word[j:]:
-                yellow_chars[j].append(char)
-            else:
-                grey_chars.add(char)
-                
-        new_valid_words = remove_invalid_words()
-        # Treat all first guesses as equal 
-        if i != 0:
-            # Calculate how good the guess was
-            pass 
-        
-        valid_words = new_valid_words 
             
             
     

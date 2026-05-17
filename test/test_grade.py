@@ -11,10 +11,11 @@ def test_all_black():
 
 @pytest.mark.parametrize("word, guess, expected", [
     ("could", "cooks", "GGBBB"),
-    ("above", "books", "YYBBB"),
-    ("llama", "alone", "YBBBY"),
-    ("eerie", "geese", "YYBBY"),
-    ("lulls", "lolls", "GBBGG"),
+    ("above", "books", "YBGBB"),
+    ("llama", "alone", "YGBBB"),
+    ("eerie", "geese", "BGYBG"),
+    ("lulls", "lolls", "GBGGG"),
+    ("steel", "eerie", "YYBBB")
 ])
 def test_duplicate_letters(word, guess, expected):
     assert grade.get_pattern(word, guess) == expected

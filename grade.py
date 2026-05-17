@@ -119,15 +119,26 @@ def get_pattern(word, guess):
         elif char not in word : pattern[i] = 'B'
         
     # not_marked = list(filter(lambda x : x == "", pattern))
-    not_marked = [x for x, c in enumerate(pattern) if c == ""]
+    guess_not_marked = [x for x, c in enumerate(pattern) if c == ""]
+    unique_char_left_guess = {guess[j] : [] for j in guess_not_marked} 
+    unique_char_left_word = {guess[j] : [] for j in guess_not_marked} 
     
-    # Some characters that appear in the word but not correct postion or more times in guess than in word
-    for i in not_marked:
-        char = guess[i]
-        indicies = [j for j, c in enumerate(word) if c == char]
-        left_char = [k for k in indicies if pattern[k] != 'G' or pattern[k] != 'Y']
-        if len(left_char) > 0:
-            pattern[i] = 'Y'
+    # Need mapping between (potential) yellow chars and indices in guess 
+    for i in guess_not_marked:
+        unique_char_left_guess[guess[i]].append(i)
+
+    # Need mapping between chars and indicies in actual word
+    for char in unique_char_left_guess.keys():
+        indicies = [j for j, wc in enumerate(word) if wc == char and pattern[j] != 'G']
+        unique_char_left_word[char] = indicies
+    
+    for char, indicies in unique_char_left_guess.items():
+        mid = min(len(indicies), len(unique_char_left_word[char]))
+        for idx in indicies[:mid]:
+            pattern[idx] = 'Y'
+        
+        for idx in indicies[mid:]:
+            pattern[idx] = 'B'
         
     return "".join(pattern)
 

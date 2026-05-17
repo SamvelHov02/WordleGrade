@@ -22,12 +22,12 @@ def test_duplicate_letters(word, guess, expected):
     
 
 def test_no_information_gain():
-    words = {"aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee"}
+    words = {"aaaaa", "bbbbb", "ccccc", "ddddd"}
     assert grade.information_gain(words, "zzzzz") == pytest.approx(0.0)
     
 
 def test_perfect_split_information_gain():
-    words = {"aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee"}
+    words = {"aaaaa", "bbbbb", "ccccc", "ddddd"}
     assert grade.information_gain(words, "abcde") == pytest.approx(2.0)
     
 

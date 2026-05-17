@@ -1,11 +1,12 @@
 import argparse
 import pandas as pd
+from math import log2
 
 def read_valid_words():
     '''Reads the posible wordle words
     
     Returns:
-        The set of all possible wordle words
+        Set : All possible wordle words
     '''
     words = set() 
     with open("valid_wordle_words.txt", "r") as file:
@@ -16,46 +17,159 @@ def read_valid_words():
     return words
 
 
+def green_valid(green_chars, word):
+    """Checks if a word is invalidated by the green cells
+    
+    Args:
+        green_chars (list) : list of 5 elements with the green cell information
+        word (str) : The word examined for invalidation
+        
+    Returns:
+        Boolean : A boolean whether or not the word is still possible
+    """
+    valid = True
+    i = 0
+    # Check green chars
+    while i < 5 and valid:
+        if green_chars[i] != '' and green_chars[i] != word[i]:
+            valid = False
+
+        i += 1
+
+    return valid
+
+def yellow_valid(yellow_chars, word):
+    """Checks if a word is invalidated by the yellow cells
+    
+    Args:
+        yellow_chars (dict) : positional keys and list of yellow characters
+        word (str) : The word examined for invalidation
+        
+    Returns:
+        Boolean : A boolean whether or not the word is still possible
+    """
+    valid = True
+
+    for i in list(yellow_chars.keys()): 
+        for char in yellow_chars[i]:
+            if char not in word:
+                valid = False
+
+    return valid
+
+def grey_valid(grey_chars, word):
+    """Checks if a word is invalidated by the grey cells
+
+    Args:
+        grey_chars (set) : All characters that are grey 
+        word (str) : The word examined for invalidation
+
+    Returns:
+        Boolean : whether or not the word is valid
+    """
+    i = 0
+    valid = True
+    while valid and i < 5:
+        char = word[i]
+        if char in grey_chars:
+            valid=False
+        i+=1
+
+    return valid
+
 def remove_invalid_words(valid_words, grey_chars, yellow_chars, green_chars): 
     '''Removes words that have been invalidated
     
     Args:
-        valid_words:previous words that were valid
-        grey_chars : 
+        valid_words (set) : previous words that were valid
+        grey_chars (set) : the accumalted grey characters
+        yellow_chars (dict) : Yellow characters per position
+        green_chars (list) : Contains correctly revealed characters
+    
+    Returns:
+        set : remaining valid words after word is guessed
     '''
+    updated_valid_words = valid_words.copy()
+    
     for word in valid_words:
-        valid = True
-        i = 0
-        # Check green chars
-        while i < 5 and valid:
-            if green_chars[i] != '' and green_chars[i] != word[i]:
-                valid = False
-
-            i += 1
+        valid_green = lambda : green_valid(green_chars, word)
+        valid_yellow = lambda : yellow_valid(yellow_chars, word)
+        valid_grey = lambda : grey_valid(grey_chars, word)
         
-        i = 0 
-
-        # Check yellow chars
-        while i < 5 and valid:
-            if yellow_chars:
-                pass
-            
-                
-            
+        if not valid_green() and not  valid_yellow() and not valid_grey():
+            updated_valid_words.remove(word)     
+    
+    return updated_valid_words
 
 
-def information_gain(valid_words, word):
+def get_pattern(word, guess):
+    """Shows the pattern for guess word
+
+    Args:
+        word (str): Word of the day
+        guess (str): Guessed word
+    
+    Returns:
+        str : a string pattern e.g. GYBGB
+    """
+    pattern = ["" for _ in range(5)]
+    # Check for green and black cells
+    for i, char in enumerate(guess):
+        if char == word[i]: pattern[i]  = 'G'
+        elif char not in word : pattern[i] = 'B'
+        
+    # not_marked = list(filter(lambda x : x == "", pattern))
+    guess_not_marked = [x for x, c in enumerate(pattern) if c == ""]
+    unique_char_left_guess = {guess[j] : [] for j in guess_not_marked} 
+    unique_char_left_word = {guess[j] : [] for j in guess_not_marked} 
+    
+    # Need mapping between (potential) yellow chars and indices in guess 
+    for i in guess_not_marked:
+        unique_char_left_guess[guess[i]].append(i)
+
+    # Need mapping between chars and indicies in actual word
+    for char in unique_char_left_guess.keys():
+        indicies = [j for j, wc in enumerate(word) if wc == char and pattern[j] != 'G']
+        unique_char_left_word[char] = indicies
+    
+    for char, indicies in unique_char_left_guess.items():
+        mid = min(len(indicies), len(unique_char_left_word[char]))
+        for idx in indicies[:mid]:
+            pattern[idx] = 'Y'
+        
+        for idx in indicies[mid:]:
+            pattern[idx] = 'B'
+        
+    return "".join(pattern)
+
+
+def information_gain(valid_words, guess):
     '''Calculates information gain from a word, i.e. the entropy difference
     
     Args:
-        valid_words : set of all valid words
-        word : the guessed word
+        valid_words (set) : All valid words
+        guess (str): the guessed word
     
     Returns:
-        An number for amount of information gain
+        float : Amount of information gain
     '''
+    size = len(valid_words)
+    buckets = {} 
     
-    pass
+    # Assuming word is the final word which pattern would guess word create
+    for word in valid_words:
+        pattern = get_pattern(word, guess)
+        buckets[pattern] = buckets.get(pattern, 0) + 1
+        
+    # Calculate the information gain
+    entropy_before = log2(size) 
+    entropy_after = 0
+    for pattern, count in buckets.items():
+        prob = count / size
+        entropy_after += prob * log2(count)
+        
+    return entropy_before - entropy_after
+         
     
 def main():
     # Define the parser

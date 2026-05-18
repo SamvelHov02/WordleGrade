@@ -11,6 +11,10 @@ def score_guess(valid_words, guess):
     Returns :
         str : A grade from A - F
     """
+    # If only one possible word left, return 1.0 if its the word otherwise 0
+    if len(valid_words) == 1:
+        return 1.0 if guess in valid_words else 0.0
+    
     word_to_inf_gain = {} # mapping between word and inforamtion gain
     # Need to get information gain of all possible guesses
     for word in valid_words:

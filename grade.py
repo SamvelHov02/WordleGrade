@@ -1,6 +1,7 @@
 import argparse
 import pandas as pd
 from math import log2
+import os
 
 def read_valid_words():
     '''Reads the posible wordle words
@@ -8,8 +9,10 @@ def read_valid_words():
     Returns:
         Set : All possible wordle words
     '''
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, "valid-wordle-words.txt")
     words = set() 
-    with open("valid_wordle_words.txt", "r") as file:
+    with open(path, "r") as file:
         for line in file.readlines():
             word = line.strip()
             words.add(word)

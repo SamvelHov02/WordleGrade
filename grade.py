@@ -184,24 +184,3 @@ def information_gain(valid_words, guess):
         entropy_after += prob * log2(count)
         
     return entropy_before - entropy_after
-         
-    
-def main():
-    # Define the parser
-    parser = argparse.ArgumentParser(description="Wordle Calculator")
-    parser.add_argument('-i', '--id', type=int, default=-1, help="The id of game to calculate, -1 for last game played")
-    args = parser.parse_args()
-
-    games_df = pd.read_csv("games.csv")
-    game_calc = games_df.iloc[args.id]
-    word, guesses = game_calc["guesses"]
-    guesses = guesses.split('-')
-    
-    # TODO : Complete the main loop logic
-    valid_words = read_valid_words()
-            
-            
-    
-
-if __name__ == "__main__":
-    main()

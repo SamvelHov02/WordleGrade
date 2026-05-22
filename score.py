@@ -13,7 +13,7 @@ def score_guess(valid_words, guess):
     """
     # If only one possible word left, return 1.0 if its the word otherwise 0
     if len(valid_words) == 1:
-        return 1.0 if guess in valid_words else 0.0
+        return (1.0, guess, 0.0) if guess in valid_words else (0.0, valid_words[0], 0.0)
     
     word_to_inf_gain = {} # mapping between word and inforamtion gain
     # Need to get information gain of all possible guesses
@@ -46,6 +46,7 @@ def score_game(game, word):
     for i, guess in enumerate(game):
         # Treat the first guess as "free"
         if i != 0: 
+            print(score_guess(valid_words, guess))
             score, b_word, b_gain = score_guess(valid_words, guess)
             total_score += score 
             optimal_game.append((score, b_word, b_gain))

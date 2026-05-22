@@ -6,6 +6,7 @@ def main():
     # Define the parser
     parser = argparse.ArgumentParser(description="Wordle Calculator")
     parser.add_argument('-i', '--id', type=int, default=-1, help="The id of game to calculate, -1 for last game played")
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose output')
     args = parser.parse_args()
 
     games_df = pd.read_csv("games.csv")
@@ -13,10 +14,13 @@ def main():
     word, guesses = game_calc
     game = guesses.split('-')
     
-    grade = score_game(game, word)
+    grade, opt_game = score_game(game, word)
     
-    print(f"The performance is graded as {grade}")
+    if args.verbose:
+        for i, guess in enumerate(game[1:]):
+            print(f"Guess was : {guess : <30} Opt word : {opt_game[i][1] : <5}  Opt E[IG] : {opt_game[i][2] : <5}")
     
+    print(f"The performence gets a {grade}") 
 
 if __name__ == "__main__":
     main()

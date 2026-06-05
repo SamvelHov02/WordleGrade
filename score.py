@@ -40,12 +40,14 @@ def score_guess_AIG(valid_words, guess, word):
     Returns:
         float : Relative information gain 
     '''
+    print(f"Wordle word is {word}")
     if len(valid_words) == 1:
         return 0.0
     elif guess == word:
         return 1.0
     else:
         ig = information_gain_AIG(valid_words, guess, word)
+        return ig
 
 def score_game(game, word, metric_fn, *args):
     """Scores a game based on words

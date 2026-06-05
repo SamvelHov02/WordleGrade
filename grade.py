@@ -158,7 +158,7 @@ def get_pattern(word, guess):
     return "".join(pattern)
 
 
-def information_gain(valid_words, guess):
+def information_gain_EIG(valid_words, guess):
     '''Calculates information gain from a word, i.e. the entropy difference
     
     Args:
@@ -166,7 +166,7 @@ def information_gain(valid_words, guess):
         guess (str): the guessed word
     
     Returns:
-        float : Amount of information gain
+        float : Expected amount of information gain
     '''
     size = len(valid_words)
     buckets = {} 
@@ -184,3 +184,20 @@ def information_gain(valid_words, guess):
         entropy_after += prob * log2(count)
         
     return entropy_before - entropy_after
+
+
+def information_gain_AIG(valid_words, guess, word):
+    '''Calculates the actual information gain, rewards lucky guess
+    
+    Args:
+        valid_words (set) : All valid words
+        guess (str) : The guessed word
+        word (str) : Final word for Wordle
+        
+    Returns:
+        float : Amount of information gain
+    '''
+    size_before = len(valid_words)
+    size_after  = len(remove_invalid_words(valid_words, word, guess))
+    return log2(size_before / size_after)
+    

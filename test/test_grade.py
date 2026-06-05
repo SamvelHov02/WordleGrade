@@ -36,14 +36,18 @@ def test_duplicate_letters(word, guess, expected):
     assert grade.get_pattern(word, guess) == expected
     
 
-def test_no_information_gain():
+def test_no_information_gain_EIG():
     words = {"aaaaa", "bbbbb", "ccccc", "ddddd"}
-    assert grade.information_gain(words, "zzzzz") == pytest.approx(0.0)
+    assert grade.information_gain_EIG(words, "zzzzz") == pytest.approx(0.0)
+
+def test_no_information_gain_AIG():
+    words = {"aaaaa", "bbbbb", "ccccc", "ddddd"}
+    assert grade.information_gain_AIG(words, "zzzzz", "aaaaa") == pytest.approx(0.0)
     
 
-def test_perfect_split_information_gain():
+def test_perfect_split_information_gain_EIG():
     words = {"aaaaa", "bbbbb", "ccccc", "ddddd"}
-    assert grade.information_gain(words, "abcde") == pytest.approx(2.0)
+    assert grade.information_gain_EIG(words, "abcde") == pytest.approx(2.0)
     
 
 # def test_uneven_split_information_gain():

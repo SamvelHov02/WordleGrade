@@ -13,7 +13,7 @@ def test_perfect_guess_score_AIG():
     valid_words = {"crane", "crate", "trace", "react", "carer"}
     guess = "crate"
     word = "crate"
-    score = score_guess_AIG(valid_words, guess, word)
+    score, _, _= score_guess_AIG(valid_words, guess, word)
     assert score == 1.0
 
 def test_no_score_guess_score_EIG():
@@ -24,9 +24,9 @@ def test_no_score_guess_score_EIG():
 
 def test_no_score_guess_score_AIG():
     valid_words = {"crane", "crate", "trace", "react", "carer"}
-    guess = "tests" 
+    guess = "zzzzz" 
     word = "crate"
-    score = score_guess_AIG(valid_words, guess, word)
+    score, _, _ = score_guess_AIG(valid_words, guess, word)
     assert score == 0.0
 
 def test_suboptimal_guess_score_less_EIG():

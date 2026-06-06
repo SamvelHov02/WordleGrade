@@ -13,7 +13,8 @@ def score_guess_EIG(valid_words, guess):
     """
     # If only one possible word left, return 1.0 if its the word otherwise 0
     if len(valid_words) == 1:
-        return (1.0, guess, 0.0) if guess in valid_words else (0.0, valid_words[0], 0.0)
+        word = list(valid_words)[0]
+        return (1.0, guess, 0.0) if guess in valid_words else (0.0, word, 0.0)
     
     word_to_inf_gain = {} # mapping between word and inforamtion gain
     # Need to get information gain of all possible guesses
@@ -42,12 +43,12 @@ def score_guess_AIG(valid_words, guess, word):
     '''
     print(f"Wordle word is {word}")
     if len(valid_words) == 1:
-        return 0.0
-    elif guess == word:
-        return 1.0
+        word = list(valid_words)[0]
+        return (1.0, guess ,1.0) if guess in valid_words else (0.0, valid_words[0], 1.0)
     else:
+        tot_inf = log2(len(valid_words))
         ig = information_gain_AIG(valid_words, guess, word)
-        return ig
+        return ( ig / tot_inf, word, tot_inf) 
 
 def score_game(game, word, metric_fn, *args):
     """Scores a game based on words

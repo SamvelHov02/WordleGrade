@@ -1,8 +1,8 @@
 from grade import *  
 from math import ceil
 
-def score_guess(valid_words, guess):
-    """Scores a guess relative to best possible guess
+def score_guess_EIG(valid_words, guess):
+    """Scores a guess relative to best possible guess, according to Expected Information Gain
     
     Args : 
         valid_words (set) : Still possible words
@@ -13,12 +13,13 @@ def score_guess(valid_words, guess):
     """
     # If only one possible word left, return 1.0 if its the word otherwise 0
     if len(valid_words) == 1:
-        return (1.0, guess, 0.0) if guess in valid_words else (0.0, valid_words[0], 0.0)
+        word = list(valid_words)[0]
+        return (1.0, guess, 0.0) if guess in valid_words else (0.0, word, 0.0)
     
     word_to_inf_gain = {} # mapping between word and inforamtion gain
     # Need to get information gain of all possible guesses
     for word in valid_words:
-        word_to_inf_gain[word] = information_gain(valid_words, word)
+        word_to_inf_gain[word] = information_gain_EIG(valid_words, word)
     
     
     sorted_inf_gain = sorted(word_to_inf_gain.items(), key=lambda x : x[1], reverse=True)     
@@ -29,7 +30,27 @@ def score_guess(valid_words, guess):
     return (guess_gain / most_gain, best_word, most_gain)
 
 
-def score_game(game, word):
+def score_guess_AIG(valid_words, guess, word):
+    '''Scores a guess relative to best possible guess, according to Actual information gain
+    
+    Args:
+        valid_words (set) : All valid words
+        guess (str) : the guess word
+        word (str) : Actual wordle word
+        
+    Returns:
+        float : Relative information gain 
+    '''
+    print(f"Wordle word is {word}")
+    if len(valid_words) == 1:
+        word = list(valid_words)[0]
+        return (1.0, guess ,1.0) if guess in valid_words else (0.0, valid_words[0], 1.0)
+    else:
+        tot_inf = log2(len(valid_words))
+        ig = information_gain_AIG(valid_words, guess, word)
+        return ( ig / tot_inf, word, tot_inf) 
+
+def score_game(game, word, metric_fn, *args):
     """Scores a game based on words
     
     Args :
@@ -46,8 +67,8 @@ def score_game(game, word):
     for i, guess in enumerate(game):
         # Treat the first guess as "free"
         if i != 0: 
-            print(score_guess(valid_words, guess))
-            score, b_word, b_gain = score_guess(valid_words, guess)
+            # print(metric_fn(valid_words, guess))
+            score, b_word, b_gain = metric_fn(valid_words, guess, *args)
             total_score += score 
             optimal_game.append((score, b_word, b_gain))
 

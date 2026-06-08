@@ -1,7 +1,7 @@
 from grade import *  
 from math import ceil
 
-def score_guess_EIG(valid_words, guess):
+def score_guess_EIG(valid_words, guess, *args):
     """Scores a guess relative to best possible guess, according to Expected Information Gain
     
     Args : 
@@ -68,7 +68,7 @@ def score_game(game, word, metric_fn, *args):
         # Treat the first guess as "free"
         if i != 0: 
             # print(metric_fn(valid_words, guess))
-            score, b_word, b_gain = metric_fn(valid_words, guess, *args)
+            score, b_word, b_gain = metric_fn(valid_words, guess, word)
             total_score += score 
             optimal_game.append((score, b_word, b_gain))
 

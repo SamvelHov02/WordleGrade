@@ -13,6 +13,7 @@ function App() {
   const [characters, setCharacters] = useState(initChars);
   const [guesses, setGuesses] = useState(new Array(6).fill(null));
   const [input, setInput] = useState('');
+  const [wordList, setWordList] = useState([]);
 
   const addGuess = (newGuess) => {
     setGuesses(prev => {
@@ -24,14 +25,29 @@ function App() {
     })
   }
 
+  const inWordList = (word) => {
+    const index = wordList.indexOf(word)
+    return index > -1 
+  }
+
+  // Fetches the word list 
+  useEffect(() => {
+    fetch('/word.json')
+      .then(res => res.json())
+      .then(data => setWordList(data))
+  });
+
   useEffect(() => {
     const handleKeyUp = (e) => {
       console.log(e.key);
       if (e.key === 'Enter'){
         // Submit the guess
-        if (input.length === 5) {
+        if (input.length === 5 && inWordList(input)) {
           addGuess(input)
           setInput('')
+        } else if (!inWordList(input)){
+          // Play animations
+          // Add some animation class and remove after it finishes.
         }
       } else if (e.key === 'Backspace'){
         setInput(prev => prev.slice(0, -1));
@@ -44,12 +60,13 @@ function App() {
     return () => window.removeEventListener('keyup', handleKeyUp)
   }, [input]);
 
+
   return (
     <>
       <section className="Main-Area">
         <h1> Samvel's Wordle</h1>
         <Game guesses={guesses} input={input} />
-        <Keyboard characters={characters}/>
+        <Keyboard characters={characters} setinput={setInput}/>
       </section>
     </>
   );

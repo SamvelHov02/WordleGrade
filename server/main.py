@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from score import score_game, score_guess_AIG, score_guess_EIG
 
 
 app = FastAPI()
+app.mount('/static', StaticFiles(directory='../client/public'), name='static')
 
 class Game(BaseModel):
     word : str

@@ -1,0 +1,13 @@
+.alert {
+  position: fixed;    /* takes it out of normal flow */
+  top: 5%;           /* distance from top of viewport */
+  left: 50%;          /* start at center */
+  transform: translateX(-50%);  /* offset by half its own width to truly center it */
+  
+  background-color: black;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;  /* pill shape */
+  font-weight: bold;
+  z-index: 100;         /* float above everything else */
+}

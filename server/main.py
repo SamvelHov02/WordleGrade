@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from score import score_game, score_guess_AIG, score_guess_EIG
+from grade import get_pattern
+import utils
 
 
 app = FastAPI()
@@ -25,4 +27,21 @@ async def grade(game : Game):
     return {
         'grade' : grade
     }
+
+@app.get('/pattern')
+async def pattern(guess : str):
+    word = utils.get_todays_word() 
+    pattern = get_pattern(word=word, guess=guess) 
     
+    return_json = {'pattern' :{}} 
+    
+    for i, color in enumerate(pattern):
+        match color:
+            case 'G':
+                return_json['pattern'][i] = 'green'
+            case 'Y':
+                return_json['pattern'][i] = 'yellow'
+            case 'B':
+                return_json['pattern'][i] = 'black'
+    
+    return return_json

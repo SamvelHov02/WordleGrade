@@ -7,6 +7,7 @@ export default defineConfig({
   server : {
     proxy : {
       '/static' : 'http://localhost:8000',
+      '/api' : 'http://localhost:8000'
     }
   }
 })

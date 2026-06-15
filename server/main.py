@@ -14,7 +14,7 @@ class Game(BaseModel):
     game : list[str]
     metric : str = 'expected'
 
-@app.post('/grade')
+@app.post('/api/grade')
 async def grade(game : Game):
     metric_fn = score_guess_EIG
     if game.metric != 'expected':
@@ -28,8 +28,9 @@ async def grade(game : Game):
         'grade' : grade
     }
 
-@app.get('/pattern')
+@app.get('/api/pattern')
 async def pattern(guess : str):
+    guess = guess.lower()
     word = utils.get_todays_word() 
     pattern = get_pattern(word=word, guess=guess) 
     

@@ -2,7 +2,7 @@ from datetime import date, datetime
 from pathlib import Path
 import json
 
-def get_todays_word(day : str | None) -> str | None:
+def get_todays_word(day : str | None = None) -> str | None:
     """Retrieves the word for today's Wordle
     
     Args:

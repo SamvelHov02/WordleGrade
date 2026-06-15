@@ -42,13 +42,18 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handleKeyUp = (e) => {
-      console.log(e.key);
+    const handleKeyUp = async (e) => {
       if (e.key === 'Enter'){
         // Submit the guess
         if (input.length === 5 && inWordList(input)) {
-          addGuess(input)
-          setInput('')
+          const oldInput = input;
+          setInput('');
+          addGuess(oldInput)
+          const res = await fetch(`/api/pattern?guess=${oldInput}`);
+          const data = await res.json(); 
+          console.log(data);
+          // Update the state characters
+          // Play the animations
         } else if (input.length === 5 && !inWordList(input)){
           // Play animations
           // Add some animation class and remove after it finishes.

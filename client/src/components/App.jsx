@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { useState, useEffect } from 'react';
+import '../style/App.css';
 import Game from './Game';
 import Keyboard from './Keyboard';
 import Alert from './Alert';

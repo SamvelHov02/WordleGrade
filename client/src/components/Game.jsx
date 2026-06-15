@@ -1,4 +1,4 @@
-import './Game.css';
+import '../style/Game.css';
 import GameRow from './GameRow';
 
 function Game({ guesses, input }){

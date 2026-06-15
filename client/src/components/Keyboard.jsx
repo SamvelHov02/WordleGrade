@@ -1,4 +1,4 @@
-import './Keyboard.css';
+import '../style/Keyboard.css';
 import KeyboardRow from './KeyboardRow';
 
 function Keyboard({ characters, setinput }){

@@ -1,4 +1,4 @@
-import './Alert.css';
+import '../style/Alert.css';
 import { useState } from 'react';
 
 function Alert({ message }){

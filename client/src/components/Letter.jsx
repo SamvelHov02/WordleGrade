@@ -1,4 +1,4 @@
-import './Letter.css';
+import '../style/Letter.css';
 
 function Letter({letter, id}){
     return (

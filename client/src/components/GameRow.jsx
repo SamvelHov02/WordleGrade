@@ -1,4 +1,4 @@
-import './GameRow.css';
+import '../style/GameRow.css';
 import Letter from './Letter';
 
 

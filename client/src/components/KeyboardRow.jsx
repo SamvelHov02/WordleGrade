@@ -1,4 +1,4 @@
-import './KeyboardRow.css';
+import '../style/KeyboardRow.css';
 
 function KeyboardRow({values, colors, setinput}){
     const changeInput = (char) => {

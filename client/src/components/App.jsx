@@ -3,6 +3,7 @@ import '../style/App.css';
 import Game from './Game';
 import Keyboard from './Keyboard';
 import Alert from './Alert';
+import { updateCharcters, addGuess } from '../utils/App.js';
 
 function App() {
   // initialize an Object with each letter set to white 
@@ -16,16 +17,6 @@ function App() {
   const [input, setInput] = useState('');
   const [wordList, setWordList] = useState([]);
   const [alertText, setAlertText] = useState('');
-
-  const addGuess = (newGuess) => {
-    setGuesses(prev => {
-      const nextEmpty = prev.findIndex(g => g === null);
-      if (nextEmpty === -1) return prev;
-      const updated = [...prev];
-      updated[nextEmpty] = newGuess;
-      return updated;
-    })
-  }
 
   const inWordList = (word) => {
     word = word.toLowerCase();
@@ -48,11 +39,15 @@ function App() {
         if (input.length === 5 && inWordList(input)) {
           const oldInput = input;
           setInput('');
-          addGuess(oldInput)
+          setGuesses(prev => addGuess(oldInput, prev));
           const res = await fetch(`/api/pattern?guess=${oldInput}`);
           const data = await res.json(); 
-          console.log(data);
+          const pattern = data.pattern;
           // Update the state characters
+          const newCharacters = updateCharcters(oldInput, pattern, characters) 
+          setCharacters(newCharacters);
+          console.log(pattern)
+          console.log(newCharacters)
           // Play the animations
         } else if (input.length === 5 && !inWordList(input)){
           // Play animations

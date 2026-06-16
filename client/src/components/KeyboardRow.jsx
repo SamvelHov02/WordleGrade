@@ -12,7 +12,7 @@ function KeyboardRow({values, colors, setinput}){
     return(
         <div className='keyboard-row'>
             {Array.from(values, (c, i) => ( 
-                <button key={c} className='keyboard-key' data-key={c} data-color={colors?.c ?? ''} onClick={() => changeInput(c)} > 
+                <button key={c} className='keyboard-key' data-key={c} data-color={colors?.[c] ?? ''} onClick={() => changeInput(c)} > 
                     {c}
                 </button>
                 ))}

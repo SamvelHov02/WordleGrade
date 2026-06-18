@@ -1,8 +1,8 @@
 import '../style/Letter.css';
 
-function Letter({letter, id}){
+function Letter({letter, id, color}){
     return (
-        <span className="row-letter" >
+        <span className="row-letter" data-color={color} >
             {letter}
         </span>
     );

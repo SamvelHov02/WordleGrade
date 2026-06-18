@@ -1,3 +1,11 @@
+.keyboard-key{
+    width: 50px;
+    height: 50px;
+    margin-right: 5px;
+    border: 0px;
+    border-radius: 5px;
+}
+
 .keyboard-key[data-key='ENTER']{
     width: 60px;
 }
@@ -18,12 +26,4 @@
 .keyboard-key[data-color='yellow']{
     background-color : #c9b458;
     color : white;
-}
-
-.keyboard-key{
-    width: 50px;
-    height: 50px;
-    margin-right: 5px;
-    border: 0px;
-    border-radius: 5px;
 }

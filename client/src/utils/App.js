@@ -39,10 +39,10 @@ export const updateCharcters = (guess, pattern, characters) => {
  * 
  * @return {Array} - Updated list of guesses 
  */
-export const addGuess = (guess, list) => {
+export const addElement = (el, list) => {
     const nextEmpty = list.findIndex(g => g === null);
     if (nextEmpty === -1) return list;
     const updated = [...list];
-    updated[nextEmpty] = guess;
+    updated[nextEmpty] = el;
     return updated;
 }

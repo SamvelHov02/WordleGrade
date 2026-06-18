@@ -8,3 +8,18 @@
     border-radius: 3px;
     line-height: 50px;
 }
+
+.row-letter[data-color='green']{
+    background-color:  #6aaa64;
+    color : white;
+}
+
+.row-letter[data-color='black']{
+    background-color: grey;
+    color : white;
+}
+
+.row-letter[data-color='yellow']{
+    background-color : #c9b458;
+    color : white;
+}

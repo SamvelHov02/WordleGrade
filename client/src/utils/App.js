@@ -46,3 +46,30 @@ export const addElement = (el, list) => {
     updated[nextEmpty] = el;
     return updated;
 }
+
+/**
+ * 
+ * @param {Array} guesses - The guesses player has made
+ * @param {Array} patterns -  The patterns the guesses have produced
+ * @returns {String} - ENUM like return based on the game state
+ */
+export const gameOver = (guesses, patterns) => {
+    // If first render
+    if (guesses.every(g => g === null)) return '';
+
+    // Find the last pattern    
+    console.log(patterns);
+    const pattern = patterns.findLast(g => g !== null);
+    console.log(pattern);
+    const elements = Object.values(pattern);
+
+    if (elements.every(g => g === 'green')){
+        return 'Victory';
+    }
+
+    if (guesses.every(g => g !== null)) {
+        return 'Defeat!';        
+    } else {
+        return '';
+    }
+}

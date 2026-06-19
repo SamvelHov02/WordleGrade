@@ -3,26 +3,27 @@ import '../style/App.css';
 import Game from './Game';
 import Keyboard from './Keyboard';
 import Alert from './Alert';
-import { updateCharcters, addElement } from '../utils/App.js';
+import { updateCharcters, addElement, gameOver } from '../utils/App.js';
 
 function App() {
   // initialize an Object with each letter set to white 
-  const initChars = Object.fromEntries(
-    Array.from({ length : 26 }, (_, i) => [String.fromCharCode(65 + i), 'white'])
+  const [characters, setCharacters] = useState(() => 
+    Object.fromEntries(
+      Array.from({ length : 26 }, (_, i) => [String.fromCharCode(65 + i), 'white'])
+    )
   );
-
-  const [count, setCount] = useState(0);
-  const [characters, setCharacters] = useState(initChars);
   const [guesses, setGuesses] = useState(new Array(6).fill(null));
   const [patterns, setPatterns] = useState(new Array(6).fill(null));
   const [input, setInput] = useState('');
   const [wordList, setWordList] = useState([]);
   const [alertText, setAlertText] = useState('');
 
+  console.log(`Before call ${patterns}`)
+  const over = gameOver(guesses, patterns);
+
   const inWordList = (word) => {
     word = word.toLowerCase();
     const index = wordList.indexOf(word);
-    console.log(index);
     return index > -1 
   }
 
@@ -34,6 +35,13 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (over) {
+      console.log(`The game is over : ${over}`)
+      setAlertText(over);
+      setTimeout(() => setAlertText(''), 2000);
+      return;
+    };
+
     const handleKeyUp = async (e) => {
       if (e.key === 'Enter'){
         if (input.length === 5 && inWordList(input)) {
@@ -41,11 +49,16 @@ function App() {
           const res = await fetch(`/api/pattern?guess=${oldInput}`);
           const data = await res.json(); 
           const pattern = data.pattern;
+
+          const newGuesses = addElement(oldInput, guesses);
+          const newPatterns = addElement(pattern, patterns);
           
           setInput('');
-          setGuesses(prev => addElement(oldInput, prev));
+          setGuesses(newGuesses);
           setCharacters(prev => updateCharcters(oldInput, pattern, prev));
-          setPatterns(prev => addElement(pattern, prev));
+          setPatterns(newPatterns);
+          // setAlertText(gameOver(newGuesses, newPatterns))
+
           // Play the animations
         } else if (input.length === 5 && !inWordList(input)){
           // Play animations
@@ -65,7 +78,7 @@ function App() {
 
     window.addEventListener('keyup', handleKeyUp);
     return () => window.removeEventListener('keyup', handleKeyUp)
-  }, [input]);
+  }, [input, over]);
 
 
   return (

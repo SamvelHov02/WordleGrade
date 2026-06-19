@@ -27,7 +27,6 @@ export const updateCharcters = (guess, pattern, characters) => {
         }
     } 
 
-    console.log(`Updated Characters ${newCharacters['A']}, ${guess}`)
     return newCharacters;
 }
 
@@ -58,9 +57,7 @@ export const gameOver = (guesses, patterns) => {
     if (guesses.every(g => g === null)) return '';
 
     // Find the last pattern    
-    console.log(patterns);
     const pattern = patterns.findLast(g => g !== null);
-    console.log(pattern);
     const elements = Object.values(pattern);
 
     if (elements.every(g => g === 'green')){

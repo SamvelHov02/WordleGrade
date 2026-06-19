@@ -18,7 +18,6 @@ function App() {
   const [wordList, setWordList] = useState([]);
   const [alertText, setAlertText] = useState('');
 
-  console.log(`Before call ${patterns}`)
   const over = gameOver(guesses, patterns);
 
   const inWordList = (word) => {
@@ -36,9 +35,20 @@ function App() {
 
   useEffect(() => {
     if (over) {
-      console.log(`The game is over : ${over}`)
-      setAlertText(over);
-      setTimeout(() => setAlertText(''), 2000);
+      const handleGameOver = async () => {
+        const res = await fetch('/api/grade', {
+          method : 'POST',
+          headers : {'Content-Type' : 'application/json'},
+          body : JSON.stringify({game : guesses.filter(e => e !== null), metric : 'expected'})
+        })
+
+        const data = await res.json();
+        const newAlert = over + `, performance grade : ${data.grade}`;
+        setAlertText(newAlert);
+        setTimeout(() => setAlertText(''), 2000);
+      }
+
+      handleGameOver();
       return;
     };
 

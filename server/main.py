@@ -10,7 +10,6 @@ app = FastAPI()
 app.mount('/static', StaticFiles(directory='../client/public'), name='static')
 
 class Game(BaseModel):
-    word : str
     game : list[str]
     metric : str = 'expected'
 
@@ -20,7 +19,7 @@ async def grade(game : Game):
     if game.metric != 'expected':
         metric_fn = score_guess_AIG
 
-    answer = game.word
+    answer = utils.get_todays_word();
     guesses = game.game
     
     grade, _ = score_game(word=answer, game=guesses, metric_fn=metric_fn)

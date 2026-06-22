@@ -17,8 +17,12 @@ function App() {
   const [input, setInput] = useState('');
   const [wordList, setWordList] = useState([]);
   const [alertText, setAlertText] = useState('');
+  const [shakeRow, setShakeRow] = useState(false);
 
   const over = gameOver(guesses, patterns);
+  const activeRow = guesses.findIndex(g => g === null);
+  const winRow = over === 'Victory' ? (guesses.findIndex(g => g === null) - 1) : -1 ;
+  console.log(winRow);
 
   const inWordList = (word) => {
     word = word.toLowerCase();
@@ -75,6 +79,7 @@ function App() {
           // Add some animation class and remove after it finishes.
           setAlertText('Not in Word List');
           setTimeout(() => setAlertText(''), 2000);
+          setShakeRow(activeRow);
         } else if (!inWordList(input)){
           setAlertText('Not Enough Letters');
           setTimeout(() => setAlertText(''), 2000);
@@ -95,7 +100,14 @@ function App() {
     <>
       <section className="Main-Area">
         <h1> Samvel's Wordle</h1>
-        <Game guesses={guesses} input={input} patterns={patterns} />
+        <Game 
+          guesses={guesses} 
+          input={input} 
+          patterns={patterns} 
+          winRow={winRow}
+          shakeRow={shakeRow}
+          onShakeEnd={() => setShakeRow(null)}
+        />
         <Alert message={alertText} />
         <Keyboard characters={characters} setinput={setInput}/>
       </section>

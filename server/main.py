@@ -21,6 +21,7 @@ async def grade(game : Game):
 
     answer = utils.get_todays_word();
     guesses = game.game
+    guesses = list(map(lambda x : x.lower(), guesses))
     
     grade, _ = score_game(word=answer, game=guesses, metric_fn=metric_fn)
     return {

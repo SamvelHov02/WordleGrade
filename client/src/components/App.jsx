@@ -22,7 +22,6 @@ function App() {
   const over = gameOver(guesses, patterns);
   const activeRow = guesses.findIndex(g => g === null);
   const winRow = over === 'Victory' ? (guesses.findIndex(g => g === null) - 1) : -1 ;
-  console.log(winRow);
 
   const inWordList = (word) => {
     word = word.toLowerCase();

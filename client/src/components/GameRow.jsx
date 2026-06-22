@@ -14,7 +14,7 @@ function GameRow({word, pattern, win, shake, onShakeEnd}){
                 const letter = word?.[i] ?? '';
                 const color  = pattern?.[i] ||  '';
                 // Update to include a data-color for pattern
-                return <Letter letter={letter} color={color}/>
+                return <Letter letter={letter} color={color} win={win} delay={`${i * 100}ms`}/>   
             })}
         </div>
     );

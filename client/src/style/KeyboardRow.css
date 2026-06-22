@@ -1,0 +1,29 @@
+.keyboard-key{
+    width: 50px;
+    height: 50px;
+    margin-right: 5px;
+    border: 0px;
+    border-radius: 5px;
+}
+
+.keyboard-key[data-key='ENTER']{
+    width: 60px;
+}
+
+.keyboard-key[data-key='DELETE']{
+    width: 65px;
+}
+
+.keyboard-key[data-color='black']{
+    background-color: grey;
+    color : white;
+}
+
+.keyboard-key[data-color='green']{
+    background-color : #6aaa64;
+    color : white;
+}
+.keyboard-key[data-color='yellow']{
+    background-color : #c9b458;
+    color : white;
+}

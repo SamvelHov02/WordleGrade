@@ -1,7 +1,7 @@
 import '../style/Game.css';
 import GameRow from './GameRow';
 
-function Game({ guesses, input, patterns, winRow, shakeRow, onShakeEnd }){
+function Game({ guesses, input, patterns, winRow, shakeRow, flipRow, onShakeEnd, onFlipEnd }){
     return (
         <div className='game-container'>
             {guesses.map((guess, i) => {
@@ -14,7 +14,9 @@ function Game({ guesses, input, patterns, winRow, shakeRow, onShakeEnd }){
                         pattern={patterns[i]} 
                         win={winRow === i}
                         shake={shakeRow === i}
+                        flip={flipRow === i}
                         onShakeEnd={onShakeEnd}
+                        onFlipEnd={onFlipEnd}
                     />
                 )
             })}

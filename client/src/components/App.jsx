@@ -17,7 +17,8 @@ function App() {
   const [input, setInput] = useState('');
   const [wordList, setWordList] = useState([]);
   const [alertText, setAlertText] = useState('');
-  const [shakeRow, setShakeRow] = useState(false);
+  const [shakeRow, setShakeRow] = useState(null);
+  const [flipRow, setFlipRow] = useState(null);
 
   const over = gameOver(guesses, patterns);
   const activeRow = guesses.findIndex(g => g === null);
@@ -70,12 +71,8 @@ function App() {
           setGuesses(newGuesses);
           setCharacters(prev => updateCharcters(oldInput, pattern, prev));
           setPatterns(newPatterns);
-          // setAlertText(gameOver(newGuesses, newPatterns))
-
-          // Play the animations
+          setFlipRow(activeRow);
         } else if (input.length === 5 && !inWordList(input)){
-          // Play animations
-          // Add some animation class and remove after it finishes.
           setAlertText('Not in Word List');
           setTimeout(() => setAlertText(''), 2000);
           setShakeRow(activeRow);
@@ -105,10 +102,12 @@ function App() {
           patterns={patterns} 
           winRow={winRow}
           shakeRow={shakeRow}
+          flipRow={flipRow}
           onShakeEnd={() => setShakeRow(null)}
+          onFlipEnd={() => setFlipRow(null)}
         />
         <Alert message={alertText} />
-        <Keyboard characters={characters} setinput={setInput}/>
+        <Keyboard characters={characters} setinput={winRow === -1 ? setInput : () => {}}/>
       </section>
     </>
   );

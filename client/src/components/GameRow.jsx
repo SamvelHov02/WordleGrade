@@ -2,8 +2,8 @@ import '../style/GameRow.css';
 import Letter from './Letter';
 
 
-function GameRow({word, pattern, win, shake, onShakeEnd}){
-    const className = `game-row ${shake ? 'shake' : ''} ${win ? 'win' : ''}` 
+function GameRow({word, pattern, win, shake, flip, onShakeEnd, onFlipEnd}){
+    const className = `game-row ${shake ? 'shake' : ''} ${win ? 'win' : ''} ${flip ? 'flip' : ''}` 
 
     return (
         <div 
@@ -14,7 +14,7 @@ function GameRow({word, pattern, win, shake, onShakeEnd}){
                 const letter = word?.[i] ?? '';
                 const color  = pattern?.[i] ||  '';
                 // Update to include a data-color for pattern
-                return <Letter letter={letter} color={color} win={win} delay={`${i * 100}ms`}/>   
+                return <Letter letter={letter} color={color} win={win} delay={`${i * 100}ms`} flip={flip} onFlipEnd={onFlipEnd}/>   
             })}
         </div>
     );

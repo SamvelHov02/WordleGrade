@@ -8,7 +8,9 @@
     "browser_specific_settings" : {
         "gecko" : {
             "id" : "wordlegrade@mozilla.org",
-            "data_collection_permissions" : ["websiteContent"]
+            "data_collection_permissions" : {
+              "required" : ["websiteContent"]
+      } 
         }
     },
     "icons" : {
@@ -27,6 +29,8 @@
         "default_title": "WordleGrade",
         "default_popup": "popup/choose_metric.html"
     },
+
+    "host_permissions" : ["http://localhost:8000/*"],
 
     "content_scripts": [{
         "matches" : ["*://*.nytimes.com/games/wordle/*"],

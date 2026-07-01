@@ -67,7 +67,7 @@ const callback = async (mutations) => {
 
         const data = await res.json();
     
-        const rootElement = document.querySelector('.ToastContainer-module_gameToaster_SIgMB');
+        const rootElement = document.querySelector('.ToastContainer-module_toastContainer__SIgMB');
         const innerElement = rootElement.querySelector('.ToastContainer-module_toaster__TYGMD');
         // add new alert with grade for a short time
         const alertMessage = document.createElement('div');

@@ -1,3 +1,5 @@
+sessionStorage.setItem('metric', 'expected');
+
 const waitFor = (selector) => {
   return new Promise((resolve) => {
     const exists = document.querySelector(selector);
@@ -59,10 +61,11 @@ const callback = async (mutations) => {
     // Send Grading request once 
     if (pattern){
         console.log(`The game was won with that guess, ${guess} : good job`);
+        const metric = sessionStorage.getItem('metric');
         const res = await fetch('http://localhost:8000/api/grade', {
           method : 'POST',
           headers : {'Content-Type' : 'application/json'},
-          body : JSON.stringify({game : game.filter(e => e !== null), metric : 'expected'})
+          body : JSON.stringify({game : game.filter(e => e !== null), metric : metric})
         })
 
         const data = await res.json();

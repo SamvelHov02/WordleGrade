@@ -59,7 +59,7 @@ def verify_password(password : str, hashed_password : str) -> bool:
         return False 
     
     
-def get_current_user(authorization : str | None) -> dict:
+def get_current_user(authorization : str | None = Header(default=None)) -> dict:
     if not authorization or not authorization.startswith('Bearer '):
         raise HTTPException(status_code=401, detail='Not authenticated')
     
@@ -158,7 +158,7 @@ async def login(credentials : Credentials):
     
     stored_hash = user['password_hash'] if user else hash_password('invalid')
     if user is None or not verify_password(credentials.password, stored_hash):
-        return HTTPException(status_code=40, detail='Invalid username or password')
+        raise HTTPException(status_code=401, detail='Invalid username or password')
     
     token = secrets.token_urlsafe(32)
     SESSIONS[token] = user['user_id']

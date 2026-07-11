@@ -21,8 +21,21 @@ const changeMetric = (clicked) => {
 }
 
 // Add eventListeners
-const elements = document.querySelectorAll('.metric');
-elements.forEach((el) => {
+const headerElements = document.querySelectorAll('.header-icon');
+headerElements.forEach((el) => {
+    const clickedElement = el.id;
+    el.addEventListener("click", () => {
+        // Go to Clicked page
+        window.location.href = `${clickedElement}.html`;
+    });
+    el.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+});
+
+const metricElements = document.querySelectorAll('.metric');
+metricElements.forEach((el) => {
     const clickedMetric = el.id;
     el.addEventListener("click", () => changeMetric(clickedMetric));
     el.addEventListener("contextmenu", (e) => {

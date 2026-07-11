@@ -6,6 +6,33 @@ h1{
     text-align: center;
 }
 
+.root{
+    display : flex;
+    flex-direction: column;
+}
+
+.header{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.header-icon{
+    border-radius: 20px;
+    padding: 5px 20px 5px 20px;
+    cursor: pointer;
+}
+
+#sign-up{
+    background-color: rgb(94, 3, 3);
+    color: white;
+    margin-right: 10px;
+}
+
+#log-in{
+    background-color: rgb(115, 115, 255);
+    color: white;
+}
+
 .main-area{
     display: flex;
     flex-direction: column;

@@ -1,0 +1,25 @@
+
+body{
+    width: 500px;
+}
+
+h1{
+    text-align: center;
+}
+
+.root{
+    display : flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.alert{
+    position: fixed;
+    top : 5vh;
+    left : 50%;
+    transform : translateX(-50%);
+    padding : 5px;
+    color : rgb(239, 97, 97);
+    border-radius: 20px;
+    background-color: beige;
+}

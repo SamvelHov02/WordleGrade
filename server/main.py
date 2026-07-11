@@ -23,7 +23,7 @@ app.mount('/static', StaticFiles(directory='../client/public'), name='static')
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://www.nytimes.com"],
+    allow_origins=["https://www.nytimes.com", "moz-extension://f33db323-8941-400e-ae9e-bc899b3b0062"],
     allow_methods=["POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )

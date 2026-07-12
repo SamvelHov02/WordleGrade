@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta lang="en" />
+    <meta title="WordleGrader" />
+    <link rel="stylesheet" href="profile.css" />
+  </head>
+  <body>
+    <div class="root">
+      <div class="header">
+        <div class="img-wrapper">
+          <img
+            src="assets/user.svg"
+            alt="Profile"
+            width="32"
+            height="32"
+            id="profile"
+          />
+        </div>
+        <div class="img-wrapper">
+          <img
+            src="assets/house.svg"
+            alt="Home screen"
+            width="32"
+            height="32"
+            id="home"
+          />
+        </div>
+      </div>
+      <main class="main-area">
+        <div class="general-stats-area">
+          <div id="games-played-stat" class="general-stat">n/a</div>
+          <div id="win-rate" class="general-stat">n/a</div>
+          <div id="current-streak" class="general-stat">n/a</div>
+          <div id="best-streak" class="general-stat">n/a</div>
+        </div>
+        <div class="grade-distribution">
+          <h3>Guess Distribution</h3>
+          <div id="grade-A" class="grade-row">
+            <div class="grade-identifier">A</div>
+            <div class="grade-bar"></div>
+            <div class="grade-count">N/A</div>
+          </div>
+          <div id="grade-B" class="grade-row">
+            <div class="grade-identifier">B</div>
+            <div class="grade-bar"></div>
+            <div class="grade-count">N/A</div>
+          </div>
+          <div id="grade-C" class="grade-row">
+            <div class="grade-identifier">C</div>
+            <div class="grade-bar"></div>
+            <div class="grade-count">N/A</div>
+          </div>
+          <div id="grade-D" class="grade-row">
+            <div class="grade-identifier">D</div>
+            <div class="grade-bar"></div>
+            <div class="grade-count">N/A</div>
+          </div>
+          <div id="grade-E" class="grade-row">
+            <div class="grade-identifier">E</div>
+            <div class="grade-bar"></div>
+            <div class="grade-count">N/A</div>
+          </div>
+          <div id="grade-F" class="grade-row">
+            <div class="grade-identifier">F</div>
+            <div class="grade-bar"></div>
+            <div class="grade-count">N/A</div>
+          </div>
+        </div>
+        <h2>Last 5 Games</h2>
+        <div class="recent-games-area">
+          <div class="recent-game">n/a</div>
+          <div class="recent-game">n/a</div>
+          <div class="recent-game">n/a</div>
+          <div class="recent-game">n/a</div>
+          <div class="recent-game">n/a</div>
+        </div>
+      </main>
+    </div>
+    <script src="profile.js"></script>
+  </body>
+</html>

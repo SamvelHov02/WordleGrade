@@ -47,6 +47,9 @@ const showLoggedInHeader = (user) => {
     profileElement.width = "32";
     profileElement.height = "32"
     rootElement.appendChild(profileElement);
+
+    // TODO : Add Event Listener to take profile page
+    profileElement.addEventListener("click", () => window.location.href = "profile.html");
 }
 
 const changeMetric = (clicked) => {

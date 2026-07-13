@@ -1,3 +1,7 @@
+body{
+    width: 500px;
+}
+
 #profile{
     margin-right: 10px;
 }
@@ -20,21 +24,29 @@
 .general-stats-area{
     display: flex;
     flex-direction: row;
+    justify-content: space-around;
     margin-bottom : 15px;
-    gap: 10px;
+    width: 100%;
+    margin-top: 30px;
 }
 
 .general-stat{
-    padding : 20px 10px 20px 10px;
+    padding : 20px 30px 20px 30px;
     background-color: #4B4B4C;
     border-radius: 10px;
+    text-align: center;
+}
+
+.stat-quantity{
+    font-size: 20px;
+    color: white;
 }
 
 .grade-distribution{
     display: flex;
     flex-direction: column; 
     gap: 5px;
-    width: 80vw;
+    width: 100%;
 }
 
 .grade-row{
@@ -43,20 +55,61 @@
 }
 
 .grade-bar{
-    width: 60vw;
+    width: 80%;
     height: 20px;
     background-color: grey;
-    border-radius: 20px;
+    border-radius: 5px;
+}
+
+.bar{
+    background-color: #1D9E75;
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+}
+
+.recent-games-wrapper{
+    width: 100%;
 }
 
 .recent-games-area{
     display: flex;
-    gap:10px;
     margin-top: 15px;
+    justify-content: space-around;
 }
 
 .recent-game{
-    padding : 20px 10px 20px 10px;
+    padding : 20px 25px 20px 25px;
     background-color: #4B4B4C;
     border-radius: 10px;
+    text-align: center;
+    color : grey;
+}
+
+.recent-game-grade{
+    font-size: 14px;
+}
+
+.recent-game-grade[data-grade="A"]{
+    color : #1D9E75;
+}
+
+.recent-game-grade[data-grade="B"]{
+    color : #63A82E;
+}
+
+.recent-game-grade[data-grade="C"]{
+    color : #D9A514;
+}
+
+.recent-game-grade[data-grade="D"]{
+    color : #E07B27;
+}
+
+.recent-game-grade[data-grade="E"]{
+    color : #DD5533;
+}
+
+.recent-game-grade[data-grade="F"]{
+    color : #C62F2F;
 }

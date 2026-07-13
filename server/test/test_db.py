@@ -46,7 +46,7 @@ def test_failed_insert_leaves_no_row(alice):
     
 
 def test_create_game_returns_game_with_guesses(alice):
-    game = db.create_game(alice["user_id"], "CRANE", "F", [])
+    game = db.create_game(alice["user_id"], "CRANE", "F", "defeat", [])
     assert game["target_word"] == "CRANE"
     assert game["grade"] == "F"
 
@@ -56,14 +56,14 @@ def test_missing_game_returns_none(fresh_db):
 
 
 def test_get_user_games_newest_first(alice):
-    first = db.create_game(alice["user_id"], "CRANE", "F", [])
-    second = db.create_game(alice["user_id"], "PLUMB", "C", [])
+    first = db.create_game(alice["user_id"], "CRANE", "F", "defeat", [])
+    second = db.create_game(alice["user_id"], "PLUMB", "C", "victory", [])
     games = db.get_user_games(alice["user_id"])
     assert [g["game_id"] for g in games] == [second["game_id"], first["game_id"]]
 
 
 def test_get_user_games_by_username(alice):
-    db.create_game(alice["user_id"], "CRANE", "A", [])
+    db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
     games = db.get_user_games_by_username("alice")
     assert len(games) == 1
     assert games[0]["target_word"] == "CRANE"
@@ -78,7 +78,7 @@ def test_games_by_unknown_username_returns_empty_list(fresh_db):
 # ---------------------------------------------------------------------------
 
 def test_add_guess_returns_correct_fields(alice):
-    game = db.create_game(alice["user_id"], "CRANE", "A", [])
+    game = db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
     g = db.add_guess(game["game_id"], "SLATE")
     assert g["guess"] == "SLATE"
     assert g["game_id"] == game["game_id"]
@@ -87,14 +87,14 @@ def test_add_guess_returns_correct_fields(alice):
 
 
 def test_add_guess_numbers_are_sequential(alice):
-    game = db.create_game(alice["user_id"], "CRANE", "A", [])
+    game = db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
     g0 = db.add_guess(game["game_id"], "SLATE")
     g1 = db.add_guess(game["game_id"], "CRANE")
     assert g1["guess_number"] == g0["guess_number"] + 1
 
 
 def test_get_game_guesses_returns_all(alice):
-    game = db.create_game(alice["user_id"], "CRANE", "B", [])
+    game = db.create_game(alice["user_id"], "CRANE", "B", "victory", [])
     db.add_guess(game["game_id"], "SLATE")
     db.add_guess(game["game_id"], "CRANE")
     guesses = db.get_game_guesses(game["game_id"])
@@ -103,13 +103,13 @@ def test_get_game_guesses_returns_all(alice):
 
 
 def test_get_game_guesses_empty_returns_empty_list(alice):
-    game = db.create_game(alice["user_id"], "CRANE", "B", [])
+    game = db.create_game(alice["user_id"], "CRANE", "B", "victory", [])
     assert db.get_game_guesses(game["game_id"]) == []
 
 
 def test_guesses_are_scoped_to_game(alice):
-    game1 = db.create_game(alice["user_id"], "CRANE", "A", [])
-    game2 = db.create_game(alice["user_id"], "PLUMB", "B", [])
+    game1 = db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
+    game2 = db.create_game(alice["user_id"], "PLUMB", "B", "victory", [])
     db.add_guess(game1["game_id"], "SLATE")
     assert db.get_game_guesses(game2["game_id"]) == []
 
@@ -120,7 +120,42 @@ def test_add_guess_invalid_game_id_raises(fresh_db):
 
 
 def test_create_game_stores_guesses(alice):
-    db.create_game(alice["user_id"], "CRANE", "B", ["SLATE", "CRANE"])
+    db.create_game(alice["user_id"], "CRANE", "B", "victory", ["SLATE", "CRANE"])
     games = db.get_user_games(alice["user_id"])
     guesses = db.get_game_guesses(games[0]["game_id"])
     assert [g["guess"] for g in guesses] == ["SLATE", "CRANE"]
+
+
+# ---------------------------------------------------------------------------
+# Status and streaks
+# ---------------------------------------------------------------------------
+
+def test_new_user_streaks_start_at_zero(alice):
+    assert alice["current_streak"] == 0
+    assert alice["best_streak"] == 0
+
+
+def test_create_game_stores_status(alice):
+    game = db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
+    assert game["status"] == "victory"
+
+
+def test_invalid_status_rejected(alice):
+    with pytest.raises(sqlite3.IntegrityError):
+        db.create_game(alice["user_id"], "CRANE", "A", "draw", [])
+
+
+def test_victory_increments_streaks(alice):
+    db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
+    db.create_game(alice["user_id"], "PLUMB", "B", "victory", [])
+    user = db.get_user_by_id(alice["user_id"])
+    assert user["current_streak"] == 2
+    assert user["best_streak"] == 2
+
+
+def test_defeat_resets_current_streak_keeps_best(alice):
+    db.create_game(alice["user_id"], "CRANE", "A", "victory", [])
+    db.create_game(alice["user_id"], "PLUMB", "F", "defeat", [])
+    user = db.get_user_by_id(alice["user_id"])
+    assert user["current_streak"] == 0
+    assert user["best_streak"] == 1

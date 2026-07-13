@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP    
+    current_streak INTEGER NOT NULL DEFAULT 0,
+    best_streak INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS games (
@@ -17,6 +19,7 @@ CREATE TABLE IF NOT EXISTS games (
     user_id INTEGER NOT NULL,
     target_word TEXT NOT NULL,
     grade TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'defeat' CHECK (status IN ('victory', 'defeat')),
     played_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -67,7 +70,8 @@ def _now():
 def add_user(username : str, password_hash : str):
     with db_session() as conn:
         cur = conn.execute(
-            "INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, ?)",
+            """INSERT INTO users (username, password_hash, current_streak, best_streak, created_at)
+            VALUES (?, ?, 0, 0, ?)""",
             (username, password_hash, _now()),
         )
 
@@ -90,14 +94,14 @@ def get_user_by_username(username : str):
         return dict(row) if row else None
 
 
-def create_game(user_id : int, target_word : str,  grade : str, guesses : list[str]):
+def create_game(user_id : int, target_word : str,  grade : str, status : str, guesses : list[str]):
     with db_session() as conn:
         cur = conn.execute(
-            """INSERT INTO games (user_id, target_word, grade, played_at) 
-            VALUES (?, ?, ?, ?)""",
-            (user_id, target_word, grade, _now()),
-        ) 
-        
+            """INSERT INTO games (user_id, target_word, grade, status, played_at)
+            VALUES (?, ?, ?, ?, ?)""",
+            (user_id, target_word, grade, status, _now()),
+        )
+
         game_id = cur.lastrowid
         row = conn.execute(
             "SELECT * FROM games WHERE game_id = ?", (game_id,)
@@ -107,6 +111,20 @@ def create_game(user_id : int, target_word : str,  grade : str, guesses : list[s
             conn.execute(
                 "INSERT INTO guesses (game_id, guess_number, guess) VALUES (?,?,?)",
                 (game_id, i, g),
+            )
+
+        if status == "victory":
+            conn.execute(
+                """UPDATE users
+                SET current_streak = current_streak + 1,
+                    best_streak = MAX(best_streak, current_streak + 1)
+                WHERE user_id = ?""",
+                (user_id,),
+            )
+        else:
+            conn.execute(
+                "UPDATE users SET current_streak = 0 WHERE user_id = ?",
+                (user_id,),
             )
 
         return dict(row)

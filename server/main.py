@@ -95,11 +95,13 @@ async def grade(game : Game, user : dict = Depends(get_current_user)):
     
     # Update database
     if user is not None:
+        status = 'victory' if guesses and guesses[-1] == answer else 'defeat'
         db.create_game(
             user_id = user['user_id'],
             target_word=answer,
             grade=grade,
-            guesses=guesses    
+            status=status,
+            guesses=guesses
         )
 
     return {
@@ -185,4 +187,30 @@ async def me(authorization : str | None = Header(default=None)):
         'user_id' : user['user_id'],
         'username' : user['username'],
         'created_at' : user['created_at']
+    }
+
+@app.get('/api/profile')
+async def profile(authorization : str | None = Header(default=None)):
+    """Function / Endpoint that returns the data for profile page"""
+    user = get_current_user(authorization=authorization)
+    games = db.get_user_games(user['user_id']) 
+    won_games = utils.get_won_games(games)
+
+    total_games = len(games)
+    total_won_games = len(won_games)
+    win_rate = total_won_games / total_games if total_games else 0.0
+    
+    curr_streak = user['current_streak']
+    best_streak = user['best_streak']
+    recent_games = utils.most_recent_k_games(games)
+    
+    grade_distribution = utils.grade_distribution(games)
+
+    return {
+        'games_played' : total_games,
+        'win_rate' : win_rate,
+        'current_streak' : curr_streak,
+        'best_streak' : best_streak,
+        'grade_dist' : grade_distribution,
+        'last_five_games' : recent_games
     }

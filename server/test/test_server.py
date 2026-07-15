@@ -230,3 +230,81 @@ def test_pattern_is_case_insensitive(client):
     upper = client.get("/api/pattern", params={"guess": "SLATE"}).json()
     lower = client.get("/api/pattern", params={"guess": "slate"}).json()
     assert upper == lower
+
+
+# ---------------------------------------------------------------------------
+# /api/profile
+# ---------------------------------------------------------------------------
+
+def play_game(client, token, won):
+    """Plays one game; the last guess decides victory ('crane') or defeat"""
+    guesses = ["slate", "crane"] if won else ["slate", "audio"]
+    response = client.post(
+        "/api/grade", json={"game": guesses}, headers=auth_header(token)
+    )
+    assert response.status_code == 200
+
+
+def test_profile_requires_auth(client):
+    assert client.get("/api/profile").status_code == 401
+
+
+def test_profile_new_user_has_empty_stats(token, registered):
+    response = registered.get("/api/profile", headers=auth_header(token))
+    assert response.status_code == 200
+    body = response.json()
+    assert body["games_played"] == 0
+    assert body["win_rate"] == 0.0
+    assert body["current_streak"] == 0
+    assert body["best_streak"] == 0
+    assert body["last_five_games"] == []
+    assert all(count == 0 for count in body["grade_dist"].values())
+
+
+def test_profile_aggregates_games(token, registered):
+    play_game(registered, token, won=True)
+    play_game(registered, token, won=True)
+    play_game(registered, token, won=False)
+
+    body = registered.get("/api/profile", headers=auth_header(token)).json()
+    assert body["games_played"] == 3
+    assert body["win_rate"] == pytest.approx(2 / 3)
+    # score_game is stubbed to always grade "A"
+    assert body["grade_dist"]["A"] == 3
+    # The defeat reset the streak of two wins
+    assert body["current_streak"] == 0
+    assert body["best_streak"] == 2
+
+
+def test_profile_win_updates_streaks(token, registered):
+    play_game(registered, token, won=True)
+    body = registered.get("/api/profile", headers=auth_header(token)).json()
+    assert body["current_streak"] == 1
+    assert body["best_streak"] == 1
+
+
+def test_profile_limits_recent_games_to_five(token, registered):
+    for _ in range(6):
+        play_game(registered, token, won=True)
+
+    body = registered.get("/api/profile", headers=auth_header(token)).json()
+    recent = body["last_five_games"]
+    assert len(recent) == 5
+
+    all_games = db.get_user_games_by_username("alice123")
+    assert len(all_games) == 6
+    # The five most recent games, newest first; the oldest game is dropped
+    oldest_id = min(g["game_id"] for g in all_games)
+    recent_ids = [g["game_id"] for g in recent]
+    assert oldest_id not in recent_ids
+    assert recent_ids == sorted(recent_ids, reverse=True)
+
+
+def test_profile_recent_games_expose_expected_fields(token, registered):
+    play_game(registered, token, won=True)
+    body = registered.get("/api/profile", headers=auth_header(token)).json()
+    game = body["last_five_games"][0]
+    assert game["target_word"] == "crane"
+    assert game["grade"] == "A"
+    assert game["status"] == "victory"
+    assert "played_at" in game

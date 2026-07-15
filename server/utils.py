@@ -37,9 +37,9 @@ def most_recent_k_games(games : list, k=5, verbose=False):
         tot_guesses = len(db.get_game_guesses(game_id))
         grade = game['grade']
         short_games.append({
-            'total_guesses' : tot_guesses,
+            'total_guesses' : tot_guesses if game['status'] == 'victory' else 'X',
             'grade' : grade
-        })
+        });
 
     return short_games
 

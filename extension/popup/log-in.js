@@ -31,6 +31,7 @@ submit.addEventListener('submit', async (e) => {
     } 
 
     const respBody = await resp.json();
-    localStorage.setItem('token', respBody.token);
+    localStorage.setItem('token', respBody.token); // OLD 
+    browser.storage.local.set({'token' : respBody.token});
     window.location.href = "choose_metric.html";
 });

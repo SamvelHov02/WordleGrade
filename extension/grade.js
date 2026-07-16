@@ -62,9 +62,10 @@ const callback = async (mutations) => {
     if (pattern){
         console.log(`The game was won with that guess, ${guess} : good job`);
         const metric = sessionStorage.getItem('metric');
+        const token=  await browser.storage.local.get('token');
         const res = await fetch('http://localhost:8000/api/grade', {
           method : 'POST',
-          headers : {'Content-Type' : 'application/json'},
+          headers : {'Content-Type' : 'application/json', 'Authorization' : `Bearer ${token.token}`},
           body : JSON.stringify({game : game.filter(e => e !== null), metric : metric})
         })
 

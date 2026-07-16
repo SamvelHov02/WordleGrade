@@ -1,5 +1,6 @@
 const checkAuth = async () => {
-    const token = localStorage.getItem('token');
+    const tokenObj = await browser.storage.local.get('token');
+    const token = tokenObj.token;
 
     if (!token){
         console.log("No token found");
@@ -14,7 +15,7 @@ const checkAuth = async () => {
         // Token might be out of date
         if (!resp.ok){
             console.log("Token out of date");
-            localStorage.removeItem('token');
+            await browser.storage.local.remove('token'); 
             return null;
         }
 

@@ -28,7 +28,7 @@ def get_todays_word(day : str | None = None) -> str | None:
 def most_recent_k_games(games : list, k=5, verbose=False):
     """Retrieves the k most recent games"""
     sorted_games =  sorted(games, key= lambda g : g['played_at'], reverse=True)
-    if not verbose : return sorted_games[:k] 
+    if  verbose : return sorted_games[:k] 
     
     relevant_games = sorted_games[:k]
     short_games = []

@@ -33,6 +33,10 @@ submit.addEventListener('submit', async (e) => {
 
     // Succesfull registration should log-in
     const respBody = await resp.json();
+<<<<<<< HEAD
     await browser.storage.local.set({'token' : respBody.token});
+=======
+    localStorage.setItem('token', respBody.token);
+>>>>>>> 9d5d82c08b44bbbbd5b6bb189b5f0b6e167d5a52
     window.location.href = "choose_metric.html";
 });

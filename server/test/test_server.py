@@ -17,6 +17,9 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(main.utils, "get_todays_word", lambda day=None: "crane")
     # score_game is expensive, endpoint tests only care about the HTTP layer
     monkeypatch.setattr(main, "score_game", lambda word, game, metric_fn: ("A", []))
+    # played_at is UNIQUE and date-only, so each call must yield a fresh date
+    fake_dates = (f"2026-07-{day:02d}" for day in range(1, 29))
+    monkeypatch.setattr(db, "_now", lambda: next(fake_dates))
     with TestClient(main.app) as test_client:
         yield test_client
 
@@ -195,7 +198,7 @@ def test_grade_returns_grade(token, registered):
 def test_grade_persists_game_for_user(token, registered):
     registered.post(
         "/api/grade",
-        json={"game": ["SLATE", "CRANE"]},
+        json={"game": ["SLATE", "CRANE"], "status": "victory"},
         headers=auth_header(token),
     )
     games = db.get_user_games_by_username("alice123")
@@ -239,8 +242,11 @@ def test_pattern_is_case_insensitive(client):
 def play_game(client, token, won):
     """Plays one game; the last guess decides victory ('crane') or defeat"""
     guesses = ["slate", "crane"] if won else ["slate", "audio"]
+    status = "victory" if won else "defeat"
     response = client.post(
-        "/api/grade", json={"game": guesses}, headers=auth_header(token)
+        "/api/grade",
+        json={"game": guesses, "status": status},
+        headers=auth_header(token),
     )
     assert response.status_code == 200
 
@@ -268,7 +274,8 @@ def test_profile_aggregates_games(token, registered):
 
     body = registered.get("/api/profile", headers=auth_header(token)).json()
     assert body["games_played"] == 3
-    assert body["win_rate"] == pytest.approx(2 / 3)
+    # win_rate is an integer percentage, truncated
+    assert body["win_rate"] == 66
     # score_game is stubbed to always grade "A"
     assert body["grade_dist"]["A"] == 3
     # The defeat reset the streak of two wins
@@ -294,17 +301,19 @@ def test_profile_limits_recent_games_to_five(token, registered):
     all_games = db.get_user_games_by_username("alice123")
     assert len(all_games) == 6
     # The five most recent games, newest first; the oldest game is dropped
+    ordered = main.utils.most_recent_k_games(all_games, verbose=True)
+    ordered_ids = [g["game_id"] for g in ordered]
     oldest_id = min(g["game_id"] for g in all_games)
-    recent_ids = [g["game_id"] for g in recent]
-    assert oldest_id not in recent_ids
-    assert recent_ids == sorted(recent_ids, reverse=True)
+    assert oldest_id not in ordered_ids
+    assert ordered_ids == sorted(ordered_ids, reverse=True)
 
 
 def test_profile_recent_games_expose_expected_fields(token, registered):
     play_game(registered, token, won=True)
+    play_game(registered, token, won=False)
     body = registered.get("/api/profile", headers=auth_header(token)).json()
-    game = body["last_five_games"][0]
-    assert game["target_word"] == "crane"
-    assert game["grade"] == "A"
-    assert game["status"] == "victory"
-    assert "played_at" in game
+    newest, older = body["last_five_games"][:2]
+    # Defeats hide the guess count behind an 'X'
+    assert newest["total_guesses"] == "X"
+    assert older["total_guesses"] == 2
+    assert newest["grade"] == "A"

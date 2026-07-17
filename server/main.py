@@ -104,13 +104,16 @@ async def grade(game : Game, user : dict = Depends(get_current_user)):
     
     # Update database
     if user is not None and status is not None:
-        db.create_game(
-            user_id = user['user_id'],
-            target_word=answer,
-            grade=grade,
-            status=status,
-            guesses=guesses
-        )
+        try:
+            db.create_game(
+                user_id = user['user_id'],
+                target_word=answer,
+                grade=grade,
+                status=status,
+                guesses=guesses
+            )
+        except sqlite3.IntegrityError:
+            raise HTTPException(status_code=409, detail="Game already graded")
 
     return {
         'grade' : grade
@@ -202,6 +205,7 @@ async def profile(authorization : str | None = Header(default=None)):
     """Function / Endpoint that returns the data for profile page"""
     user = get_current_user(authorization=authorization)
     games = db.get_user_games(user['user_id']) 
+    print(games)
     won_games = utils.get_won_games(games)
 
     total_games = len(games)

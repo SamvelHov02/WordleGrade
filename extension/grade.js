@@ -94,7 +94,7 @@ const callback = async (mutations) => {
     const alertMessage = document.createElement('div');
     alertMessage.className = 'Toast-module_toast__iiVsN';
     alertMessage.innerText = `Performance grade : ${data.grade}`;
-    innerElement.appendChild(alertMessage);
+    if (data.grade) innerElement.appendChild(alertMessage);
 
     setTimeout(() => {
       alertMessage.remove();

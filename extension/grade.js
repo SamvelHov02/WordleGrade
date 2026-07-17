@@ -58,6 +58,7 @@ const callback = async (mutations) => {
       return;
     }
 
+    let data;
     // Send Grading request once 
     if (pattern){
         console.log(`The game was won with that guess, ${guess} : good job`);
@@ -66,19 +67,38 @@ const callback = async (mutations) => {
         const res = await fetch('http://localhost:8000/api/grade', {
           method : 'POST',
           headers : {'Content-Type' : 'application/json', 'Authorization' : `Bearer ${token.token}`},
-          body : JSON.stringify({game : game.filter(e => e !== null), metric : metric})
+          body : JSON.stringify({game : game.filter(e => e !== null), metric : metric, extension : true, status : 'victory'})
         })
 
-        const data = await res.json();
-    
-        const rootElement = document.querySelector('.ToastContainer-module_toastContainer__SIgMB');
-        const innerElement = rootElement.querySelector('.ToastContainer-module_toaster__TYGMD');
-        // add new alert with grade for a short time
-        const alertMessage = document.createElement('div');
-        alertMessage.className = 'Toast-module_toast__iiVsN';
-        alertMessage.innerText = `Performance grade : ${data.grade}`;
-        innerElement.appendChild(alertMessage);
+        data = await res.json();
+  } else if (game[5] !== null) {
+      // Game was lost no more guesses
+      console.log(`The game was lost :(`);
+      const metric = sessionStorage.getItem('metric');
+      const token = await browser.storage.local.get('token');
+      const res = await fetch('http://localhost:8000/api/grade',{
+        method : 'POST',
+        headers : {
+          'Content-Type' : 'application/json',
+          'Authorization' : `Bearer ${token.token}`,
+        },
+        body : JSON.stringify({game : game, metric : metric, extension : true, status : 'defeat'})
+      });
+
+      data = await res.json();
   }
+
+    const rootElement = document.querySelector('.ToastContainer-module_toastContainer__SIgMB');
+    const innerElement = rootElement.querySelector('.ToastContainer-module_toaster__TYGMD');
+    // add new alert with grade for a short time
+    const alertMessage = document.createElement('div');
+    alertMessage.className = 'Toast-module_toast__iiVsN';
+    alertMessage.innerText = `Performance grade : ${data.grade}`;
+    innerElement.appendChild(alertMessage);
+
+    setTimeout(() => {
+      alertMessage.remove();
+    }, 2000);
 }
 
 console.log("Starts observing!!");

@@ -18,6 +18,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     for (let i = 0; i < generalStats.length; i++){
         generalStats[i].textContent = quantityArray[i];
+        if (generalStats[i].id === 'win-rate'){
+            console.log("Does it get to win rate?");
+            const oldContent = generalStats[i].textContent;
+            generalStats[i].textContent = oldContent + "%";
+        }
     }
 
     // Add the Grade Distribution
@@ -28,11 +33,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     gradeRows.forEach((el) => {
         const key = el.id.slice(6);
         const count = grades[key];
-        const barElement = el.querySelector('.grade-bar');
+        const barElement = el.querySelector('.bar');
         const countElement = el.querySelector('.grade-count');
         
         countElement.textContent = count
-        countElement.style.width = total_grades > 0 ? `${(count / total_grades) * 100}%` : "n/a";
+        barElement.style.width = total_grades > 0 ? `${(count / total_grades) * 100}%` : "n/a";
     });
 
     // Add the recent games
@@ -47,5 +52,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         gradeElement.textContent = grade;
         guessesElement.textContent = guesses;
+        gradeElement.dataset.grade = grade;
     });
 });

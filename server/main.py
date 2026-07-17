@@ -80,6 +80,8 @@ class Game(BaseModel):
     game : list[str]
     metric : str = 'expected'
     token : str | None = None
+    extension : bool = True
+    status : str | None = None
 
 @app.post('/api/grade')
 async def grade(game : Game, user : dict = Depends(get_current_user)):
@@ -87,15 +89,21 @@ async def grade(game : Game, user : dict = Depends(get_current_user)):
     if game.metric != 'expected':
         metric_fn = score_guess_AIG
 
-    answer = utils.get_todays_word();
     guesses = game.game
     guesses = list(map(lambda x : x.lower(), guesses))
     
+    answer = None
+
+    if not game.extension:
+        answer = utils.get_todays_word();
+    else:
+        answer = guesses[-1]
+    
     grade, _ = score_game(word=answer, game=guesses, metric_fn=metric_fn)
+    status = game.status
     
     # Update database
-    if user is not None:
-        status = 'victory' if guesses and guesses[-1] == answer else 'defeat'
+    if user is not None and status is not None:
         db.create_game(
             user_id = user['user_id'],
             target_word=answer,
@@ -198,7 +206,7 @@ async def profile(authorization : str | None = Header(default=None)):
 
     total_games = len(games)
     total_won_games = len(won_games)
-    win_rate = total_won_games / total_games if total_games else 0.0
+    win_rate = int(total_won_games / total_games * 100) if total_games else 0.0
     
     curr_streak = user['current_streak']
     best_streak = user['best_streak']

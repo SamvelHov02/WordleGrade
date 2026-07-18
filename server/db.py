@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS games (
     target_word TEXT NOT NULL,
     grade TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'defeat' CHECK (status IN ('victory', 'defeat')),
-    played_at TEXT UNIQUE DEFAULT CURRENT_TIMESTAMP,
+    played_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, played_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 

@@ -3,8 +3,8 @@ import sqlite3
 from datetime import datetime, timezone
 from contextlib import contextmanager
 
-DB_PATH = "wordle.db"
-# DB_PATH = "test_wordle.db"
+# DB_PATH = "wordle.db"
+DB_PATH = "test_wordle.db"
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,8 +21,7 @@ CREATE TABLE IF NOT EXISTS games (
     target_word TEXT NOT NULL,
     grade TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'defeat' CHECK (status IN ('victory', 'defeat')),
-    played_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id, played_at),
+    played_at TEXT UNIQUE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 

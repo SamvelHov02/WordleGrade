@@ -1,9 +1,6 @@
 # WordleGrade
 
-<p align="center">
-  <img src="assets/wordleGradeDemo.gif" width="600" alt="demo">
-</p>
-
+![Demo](./wordleGradeDemo.gif)
 WordleGrade is a project that uses expected information gain to grade a game of Wordle. This project was inspired by the 3Blue1Brown video series however this project is far simpler e.g. WordleGrade assumes that the distribution of the wordle words as the answer is uniform.
 
 ## Grading

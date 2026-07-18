@@ -2,6 +2,26 @@
 const homeElement = document.getElementById('home');
 homeElement.addEventListener("click", () => window.location.href = "choose_metric.html");
 
+// User should be able to logout
+const logOutElement = document.getElementById('log-out');
+logOutElement.addEventListener("click", async () => {
+    const tokenObj = await browser.storage.local.get('token');
+    const token = tokenObj.token;
+
+    const res = await fetch("http:localhost:8000/api/logout", {
+        method : "POST",
+        headers : {
+            'Authorization' : `Bearer ${token}`
+        }
+    });
+
+    // Succesfully logged out
+    if (res.ok){
+        await browser.storage.local.remove('token');
+        window.location.href = "choose_metric.html";
+    } 
+});
+
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('token');
 

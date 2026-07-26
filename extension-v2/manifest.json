@@ -3,7 +3,7 @@
     "author" : "Samvel Hovhannisyan",
     "manifest_version" : 3, 
     "name" : "WordleGrade",
-    "version" : "1.0",
+    "version" : "2.0",
     "homepage_url" : "https://github.com/SamvelHov02/WordleGrade",
     "browser_specific_settings" : {
         "gecko" : {
@@ -31,11 +31,10 @@
     },
 
     "permissions" : ["storage"],
-    "host_permissions" : [""],
     
     "background": {
         "service_worker": "background.js",
-        "script" : ["background.js"]
+        "scripts" : ["background.js"]
     },
 
     "content_scripts": [{

@@ -1,87 +1,51 @@
-const validWords = fetch('valid-wordle-words.json').then(r => r.json());
-
-browser.runtime.onMessage.addEventListener((msg, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === "GRADE_GAME"){
+        console.log("Gets to the start of grading");
         const game = msg.game;
-        const target = msg.target;
-        const grade = grade(game, target);
-        sendResponse(grade);
+        const res = grade(game).then(res => sendResponse(res));
+        return true;
     }
 });
 
 
-const getPattern = (guess, target) => {
-    let pattern = ['-', '-','-','-','-'];
-    // Green and Gray trivialy checked
-    guess.forEach((char, i) => {
-        if (char === target[i]){
-            pattern = pattern.subarray(0, i) + 'G' + pattern.substring(i+1);
-        } else if (!target.includes(char)){
-            pattern = pattern.substring(0, i) + 'B' + pattern.substring(i+1);
-        } 
+const removeInvalidWords = (words, guessObj) => {
+    const guess    = guessObj.guess.toLowerCase();
+    // getPattern emits G/Y/B, so normalise the observed pattern to match.
+    const observed = guessObj.pattern.toUpperCase();
 
-    });
-
-    // Yellow chars more tricky since the number of yellow tiles for one character shouldn't exceed number in target
-    // E.g. target : CREST and guess : EERIE only the first E tile should be yellow
-    let indicesLeft = pattern.filter(el => el === '-');
-    let charsLeft = indicesLeft.map(idx => target[idx]);
-
-    indicesLeft.forEach((idx, i) => {
-        if (charsLeft.includes(guess[idx])){
-            pattern[idx] = "Y";
-            charsLeft[i] = "";
-        } else {
-            pattern[idx] = "B";
-        }
-    });
-
-    return pattern;
+    // A word is still possible iff guessing `guess` against it as the target
+    // would reproduce the exact pattern we actually saw.
+    return words.filter(w => getPattern(guess, w.toLowerCase()) === observed);
 }
 
-const removeInvalidWords = (words, guess, target) => {
-    const pattern = getPattern(guess, target);
+const getPattern = (guess, target) => {
+    guess  = guess.split("");
+    target = target.split("");
+    const pattern = ['-', '-', '-', '-', '-'];
 
-    let greenChars = ['-', '-', '-', '-', '-'];
-    let greyChars  = [];
-    const yellowChars = {};
-
-    pattern.forEach((color, i) => {
-        if (color === 'G') {
-            greenChars[i] = guess[i];
-        } else if (!yellowChars[color] && color === 'B') greyChars.push(guess[i]);
-        else {
-            if (!yellowChars[color]) {
-                yellowChars[color] = {
-                    count : 1, 
-                };
-            } else {
-                yellowChars[color].count++
-            }
+    // Pass 1: greens. Consume matched target letters so they can't be reused as yellow.
+    guess.forEach((char, i) => {
+        if (char === target[i]) {
+            pattern[i] = 'G';
+            target[i] = null;      // mark as used up
         }
     });
 
-    let remainingWords = [];
-
-    words.forEach((w) => {
-        const arrW = w.split("");
-
-        let add = true;
-        // Check that green places
-        arrW.some((c, i) => {
-            if (greyChars.includes(c)) {add = false; return true};
-            if (greenChars[i] !== '-' && c !== greenChars[i]) {add = false; return true};
-            
-            // Yellow Chars check
-            if (yellowChars[color] && yellowChars[color].count > 0){
-                yellowChars[color].count--;
-            } else if (yellowChars[color].count <= 0) {add = false; return true};
-        });
-
-        if (add) remainingWords.push(w);
+    // Pass 2: yellows / greys on the remaining tiles.
+    // The number of yellow tiles for one character shouldn't exceed the number in target.
+    // E.g. target : CREST and guess : EERIE only the first E tile should be yellow.
+    guess.forEach((char, i) => {
+        if (pattern[i] === 'G') return;          // already green
+        const j = target.indexOf(char);          // an unused matching letter left?
+        if (j !== -1) {
+            pattern[i] = 'Y';
+            target[j] = null;                     // consume it
+        } else {
+            pattern[i] = 'B';
+        }
     });
 
-    return remainingWords;
+    return pattern.join("");  // e.g. "GBYBB" — a string, good as a bucket key
 }
 
 const informationGain = (words, guess) => {
@@ -126,30 +90,47 @@ const optimalGuess = (words) => {
 }
 
 
-const grade = (game, target) => {
-    let gradeAcc;
-    game.forEach((g, i) => {
-        const optimal = optimalGuess(validWords);
-        validWords = removeInvalidWords(validWords, g, target);
-        if (i === 0) return;
+const grade = (game) => {
+    return fetch('valid-wordle-words.json')
+        .then(res => res.json())
+        .then(validWords => {
+            let gradeAcc = 0;
+            game.forEach((g, i) => {
+                // Skip i === 0: the first guess has no prior information to be
+                // graded against, and running optimalGuess on the full ~13k word
+                // list is an O(N^2) computation we'd only throw away.
+                if (i > 0) {
+                    const optimal = optimalGuess(validWords);
+                    const optimalWord = optimal.ordered[0];
+                    const optimalGain = optimal.informationGains[optimalWord];
 
-        const optimalWord = optimal.ordered[0];
-        const guessGain = optimal.informationGains[g];
-        const optimalGain = optimal.informationGains[optimalWord];
+                    // Compute the actual guess's IG directly — it may not be in the
+                    // candidate set, since default Wordle allows inconsistent guesses.
+                    const guessGain = informationGain(validWords, g.guess.toLowerCase());
 
-        gradeAcc += guessGain / optimalGain;
+                    // If no information remains to be gained (e.g. one candidate left),
+                    // the guess can't do better than optimal → treat as a perfect ratio.
+                    const ratio = optimalGain > 0 ? Math.min(1, guessGain / optimalGain) : 1;
+                    gradeAcc += ratio;
+                }
 
-        // Convert Numeric grade to a char grade.
-    });
+                // Narrow the candidate set using this guess's feedback for the next round.
+                validWords = removeInvalidWords(validWords, g);
+            });
 
-    gradeAcc = gradeAcc / game.length;
+            console.log("Gets to the end of game");
 
-    let charGrade;
-    if (gradeAcc >= 0.9) charGrade = 'A';
-    else if (gradeAcc >= 0.75) charGrade = 'B';
-    else if (gradeAcc >= 0.6) charGrade = 'C';
-    else if (gradeAcc >= 0.45) charGrade = 'D';
-    else charGrade = 'F';
+            // Guess 0 isn't graded, so only game.length - 1 guesses contribute.
+            const gradedCount = game.length - 1;
+            gradeAcc = gradedCount > 0 ? gradeAcc / gradedCount : 1;
 
-    return {charGrade};
+            let charGrade;
+            if (gradeAcc >= 0.9) charGrade = 'A';
+            else if (gradeAcc >= 0.75) charGrade = 'B';
+            else if (gradeAcc >= 0.6) charGrade = 'C';
+            else if (gradeAcc >= 0.45) charGrade = 'D';
+            else charGrade = 'F';
+
+            return charGrade;
+        });
 }

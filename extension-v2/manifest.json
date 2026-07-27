@@ -39,6 +39,7 @@
 
     "content_scripts": [{
         "matches" : ["*://*.nytimes.com/games/wordle/*"],
-        "js" : ["grade.js"]
+        "js" : ["grade.js", "tab.js"],
+        "css" : ["tab.css"]
     }]
 }

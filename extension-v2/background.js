@@ -66,7 +66,7 @@ const informationGain = (words, guess) => {
 
     // Calculate the expected information gain
     for (const [pat, count] of Object.entries(buckets)){
-       S -= count * Math.log2(count);
+       S += count * Math.log2(count);
     }
     
     return Math.log2(N) - (S/N);
@@ -94,13 +94,21 @@ const grade = (game) => {
     return fetch('valid-wordle-words.json')
         .then(res => res.json())
         .then(validWords => {
+            console.log("Get's to the second then in grade");
+            let gameObj = {
+                grade : "",
+                stats : []
+            };
             let gradeAcc = 0;
+            let optimal;
             game.forEach((g, i) => {
+                console.log(`Guess : ${i}`);
+                const stat = {}
+
                 // Skip i === 0: the first guess has no prior information to be
                 // graded against, and running optimalGuess on the full ~13k word
                 // list is an O(N^2) computation we'd only throw away.
                 if (i > 0) {
-                    const optimal = optimalGuess(validWords);
                     const optimalWord = optimal.ordered[0];
                     const optimalGain = optimal.informationGains[optimalWord];
 
@@ -116,21 +124,23 @@ const grade = (game) => {
 
                 // Narrow the candidate set using this guess's feedback for the next round.
                 validWords = removeInvalidWords(validWords, g);
+                optimal = optimalGuess(validWords);
+                stat.guess = g.guess;
+                stat.remainingWords = validWords;
+                stat.nextOptimal = optimal.ordered[0];
+                gameObj.stats.push(stat);
             });
-
-            console.log("Gets to the end of game");
 
             // Guess 0 isn't graded, so only game.length - 1 guesses contribute.
             const gradedCount = game.length - 1;
             gradeAcc = gradedCount > 0 ? gradeAcc / gradedCount : 1;
 
-            let charGrade;
-            if (gradeAcc >= 0.9) charGrade = 'A';
-            else if (gradeAcc >= 0.75) charGrade = 'B';
-            else if (gradeAcc >= 0.6) charGrade = 'C';
-            else if (gradeAcc >= 0.45) charGrade = 'D';
-            else charGrade = 'F';
+            if (gradeAcc >= 0.9) gameObj.grade = 'A';
+            else if (gradeAcc >= 0.75) gameObj.grade = 'B';
+            else if (gradeAcc >= 0.6) gameObj.grade = 'C';
+            else if (gradeAcc >= 0.45) gameObj.grade = 'D';
+            else gameObj.grade = 'F';
 
-            return charGrade;
+            return gameObj;
         });
 }

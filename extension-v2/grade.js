@@ -21,7 +21,8 @@ const config = {
 }
 
 // Note : Maybe change to Object {1 : {word : crane, pattern : gbygb}}
-const game = [];
+window.game = []
+const game = window.game;
 
 const callback = async (mutations) => {
     console.log("Get's to the callback");
@@ -36,6 +37,9 @@ const callback = async (mutations) => {
     let submittedTags = ["correct", "absent", "present"];
     let submitted = true;
     console.log(tiles);
+
+    const tileStates = Array.from(tiles).map((t) => t.getAttribute('data-state'));
+    console.log(`The tile states are : ${tileStates}`);
 
     for (const tile of tiles){
       // Need to check that all children have a value since mutationObserver callback runs even if only one letter is entered
@@ -66,17 +70,18 @@ const callback = async (mutations) => {
     // Append guess only after submittion
     if (submitted){
       game.push({ guess, pattern });
+      document.dispatchEvent(new CustomEvent('myext:new-guess', { detail : { guess, pattern : tileStates}}));
       console.log(`The game thus far is ${game}`);
     } else {
       return;
     }
 
-    let grade;
+    let stats;
 
     if (pattern.split("").every(l => l==='g')){
         console.log(`The game was won with that guess, ${guess} : good job`);
         const metric = sessionStorage.getItem('metric');
-        grade = await browser.runtime.sendMessage({
+        stats = await browser.runtime.sendMessage({
           type : "GRADE_GAME",
           game : game,
         });
@@ -84,19 +89,21 @@ const callback = async (mutations) => {
       // Game was lost — all six guesses used and none solved it. Grade what was played.
       console.log(`The game was lost :(`);
       const metric = sessionStorage.getItem('metric');
-      grade = await browser.runtime.sendMessage({
+      stats = await browser.runtime.sendMessage({
         type : "GRADE_GAME",
         game : game,
       });
-  }
+    }
 
     // Only show a toast once the game is over and we have a grade back.
-    if (grade){
+    if (stats){
+      window.stats = stats.stats;
+
       const rootElement = document.querySelector('.ToastContainer-module_toastContainer__SIgMB');
       const innerElement = rootElement.querySelector('.ToastContainer-module_toaster__TYGMD');
       const alertMessage = document.createElement('div');
       alertMessage.className = 'Toast-module_toast__iiVsN';
-      alertMessage.innerText = `Performance grade : ${grade}`;
+      alertMessage.innerText = `Performance grade : ${stats.grade}`;
       innerElement.appendChild(alertMessage);
 
       setTimeout(() => {

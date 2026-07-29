@@ -38,7 +38,7 @@ const callback = async (mutations) => {
     let submitted = true;
     console.log(tiles);
 
-    const tileStates = Array.from(tiles).map((t) => t.getAttribute('data-state'));
+    const tileStates = []; 
     console.log(`The tile states are : ${tileStates}`);
 
     for (const tile of tiles){
@@ -47,21 +47,19 @@ const callback = async (mutations) => {
         guess += tile.innerText;
         let dataState = tile.getAttribute('data-state');
 
-        switch (dataState) {
-          case "correct":
-            pattern += "g";
+        submitted = submitted && submittedTags.includes(dataState);
+        tileStates.push(dataState);
+        
+        switch(dataState){
+          case 'correct':
+            pattern += 'g';
             break;
-          case "absent":
-            pattern += "b";
-            break;
-          case "present":
-            pattern += "y";
+          case 'present':
+            pattern += 'y';
             break;
           default:
-            return;
+            pattern += 'b';
         }
-
-        submitted = submitted && submittedTags.includes(dataState);
       } else {
         return;
       }
@@ -69,7 +67,7 @@ const callback = async (mutations) => {
 
     // Append guess only after submittion
     if (submitted){
-      game.push({ guess, pattern });
+      game.push({ guess, tileStates, pattern });
       document.dispatchEvent(new CustomEvent('myext:new-guess', { detail : { guess, pattern : tileStates}}));
       console.log(`The game thus far is ${game}`);
     } else {
@@ -78,7 +76,7 @@ const callback = async (mutations) => {
 
     let stats;
 
-    if (pattern.split("").every(l => l==='g')){
+    if (tileStates.every(t => t==='correct')){
         console.log(`The game was won with that guess, ${guess} : good job`);
         const metric = sessionStorage.getItem('metric');
         stats = await browser.runtime.sendMessage({

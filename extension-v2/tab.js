@@ -20,15 +20,83 @@ const createTab = () => {
 
     const wordList = document.createElement('div');
     wordList.className = 'grade-wordlist';
+
+    const footer = document.createElement('div');
+    footer.className = 'grade-footer';
     
-    panel.append(title, hint, wordList);
+    const redditShare = document.createElement('span');
+    redditShare.className = 'grade-share-reddit';
+    
+    redditShare.addEventListener('click', async () => {
+        if (window.stats) {
+            // Builds the emoji patterns for each guess
+            const patternStrings = window.game.map((g) => {
+                let row = "";
+                for (const tile of g.tileStates) {
+                    switch (tile){
+                        case 'correct':
+                            row += '🟩';
+                            break;
+                        case 'present':
+                            row += '🟨';
+                            break;
+                        default:
+                            row += '⬛';
+                    }
+                }
+                return row;
+            });
+
+            let text = `WordleGrade ${window.stats.length}/6 \n\n14855\n`;
+
+            patternStrings.forEach((p, i) => {
+                text += p + ` >!${window.stats[i].guess}!< ${window.stats[i].remainingWords.length} \n`;
+            });
+
+            await navigator.clipboard.writeText(text);
+        }
+    });
+
+    const discordShare = document.createElement('span');
+    discordShare.className = 'grade-share-discord';
+    discordShare.addEventListener('click', async () => {
+        if (window.stats){
+            const patternStrings = window.game.map((g) => {
+                let row = "";
+
+                for (const tile of g.tileStates){
+                    switch (tile){
+                        case 'correct':
+                            row += '🟩';
+                            break;
+                        case 'present':
+                            row += '🟨';
+                            break;
+                        default:
+                            row += '⬛';
+                    }
+                }
+                return row;
+            });
+
+            let text = `WordleGrade ${window.stats.length}/6 \n\n14855\n`;
+
+            patternStrings.forEach((p, i) => {
+                text += p + ` ||${window.stats[i].guess}|| ${window.stats[i].remainingWords.length} \n`;
+            });
+
+            await navigator.clipboard.writeText(text);
+        }
+    });
+
+    footer.append(redditShare, discordShare);
+    panel.append(title, hint, wordList, footer);
     wrapper.append(tab, panel);
     document.body.appendChild(wrapper);
     
     const dropDown = document.createElement('div');
     dropDown.className = 'grade-drop-down';
 
-    // TODO : need function that can add Guesses and also render them
     const showStats = (word, rowEl) => {
         // Reset previous dropDown
         dropDown.innerHTML = ""

@@ -171,3 +171,28 @@
     padding : 2px 2px;
 }
 
+.grade-footer{
+    display: flex;
+    justify-content: flex-end;
+    margin-top : 10px;
+    border-top : 1px solid #3a3a3c;
+}
+
+.grade-share-reddit{
+    background : #ff4500;
+    border-radius : 20px;
+    height : 15px;
+    width : 30px;
+    margin-top : 4px;
+    margin-right : 2px;
+    cursor: pointer;
+}
+
+.grade-share-discord{
+    background : #5865f2;
+    border-radius : 20px;
+    height : 15px;
+    width : 30px;
+    margin-top : 4px;
+    cursor: pointer;
+}
